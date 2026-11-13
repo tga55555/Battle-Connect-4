@@ -163,13 +163,25 @@ header .sub{margin-top:20px}
 /* KEEP SUBTITLE CLEAR OF THE TITLE'S PURPLE GLOW */
 header .sub{margin-top:34px;position:relative;z-index:1}
 
-/* SMOKE AFTER DARK ARCADE VISUAL OVERHAUL */
-body:before,body:after{content:"";position:fixed;inset:-18%;pointer-events:none;z-index:0}
-body:before{background:radial-gradient(ellipse at 12% 22%,#a855f755 0,transparent 34%),radial-gradient(ellipse at 88% 30%,#ec489955 0,transparent 32%),radial-gradient(ellipse at 52% 95%,#2563eb44 0,transparent 38%);filter:blur(42px);animation:smokeDrift 22s ease-in-out infinite alternate}
-body:after{opacity:.42;background-image:radial-gradient(circle,#fff 0 1px,transparent 1.8px),radial-gradient(circle,#f9a8d4 0 1px,transparent 2px),radial-gradient(circle,#c4b5fd 0 1px,transparent 2px);background-size:113px 137px,173px 191px,229px 167px;background-position:0 0,42px 66px,95px 22px;animation:sparkDrift 34s linear infinite}
-.app{position:relative;z-index:1}
-@keyframes smokeDrift{0%{transform:translate3d(-2%,1%,0) scale(1)}50%{transform:translate3d(2%,-2%,0) scale(1.07)}100%{transform:translate3d(-1%,2%,0) scale(1.02)}}
-@keyframes sparkDrift{to{background-position:113px -137px,-131px 257px,324px -145px}}
+/* SMOKE AFTER DARK — REAL CLOUD / WISP BACKGROUND */
+.smoke-fx{position:fixed;inset:-12%;z-index:0;overflow:hidden;pointer-events:none;contain:strict;opacity:.92}
+.smoke-cloud{position:absolute;display:block;width:58vw;height:48vh;min-width:340px;min-height:300px;border-radius:50%;filter:blur(30px) saturate(1.45);mix-blend-mode:screen;will-change:transform;opacity:.48;
+ background:
+ radial-gradient(ellipse at 22% 45%,rgba(191,91,255,.76) 0 7%,transparent 39%),
+ radial-gradient(ellipse at 48% 35%,rgba(236,72,153,.52) 0 11%,transparent 45%),
+ radial-gradient(ellipse at 70% 58%,rgba(120,91,255,.62) 0 9%,transparent 43%),
+ radial-gradient(ellipse at 39% 72%,rgba(56,142,255,.38) 0 8%,transparent 42%),
+ radial-gradient(ellipse at 83% 32%,rgba(255,129,202,.32) 0 6%,transparent 34%);
+ mask-image:radial-gradient(ellipse at center,#000 22%,rgba(0,0,0,.85) 48%,transparent 75%)}
+.smoke-cloud.one{left:-17%;top:3%;animation:smokeRollOne 27s ease-in-out infinite alternate}
+.smoke-cloud.two{right:-19%;top:27%;width:66vw;height:52vh;opacity:.42;filter:blur(38px) saturate(1.5);animation:smokeRollTwo 32s ease-in-out infinite alternate}
+.smoke-cloud.three{left:20%;bottom:-25%;width:62vw;height:42vh;opacity:.34;filter:blur(34px) saturate(1.35);animation:smokeRollThree 35s ease-in-out infinite alternate}
+@keyframes smokeRollOne{0%{transform:translate3d(-4%,2%,0) rotate(-13deg) scale(.88)}50%{transform:translate3d(10%,7%,0) rotate(9deg) scale(1.14)}100%{transform:translate3d(3%,-6%,0) rotate(-5deg) scale(1.02)}}
+@keyframes smokeRollTwo{0%{transform:translate3d(5%,-5%,0) rotate(14deg) scale(1.08)}55%{transform:translate3d(-9%,8%,0) rotate(-10deg) scale(.9)}100%{transform:translate3d(-2%,-3%,0) rotate(8deg) scale(1.16)}}
+@keyframes smokeRollThree{0%{transform:translate3d(-5%,5%,0) rotate(8deg) scale(.9)}100%{transform:translate3d(8%,-7%,0) rotate(-12deg) scale(1.13)}}
+.app,.shell{position:relative;z-index:1}
+@media(max-width:600px){.smoke-cloud{filter:blur(25px) saturate(1.35);opacity:.42}.smoke-cloud.two{opacity:.34}.smoke-cloud.three{opacity:.28}}
+@media(prefers-reduced-motion:reduce){.smoke-cloud{animation:none!important}}
 .board-wrap{border:2px solid #a78bfa;background:linear-gradient(145deg,#3b2363,#172b55 62%,#111a3b);box-shadow:inset 0 2px 0 #ffffff22,0 0 0 4px #291642,0 0 30px #9d5bff66,0 18px 42px #0009}
 .board{border:1px solid #8fc5ff;background:linear-gradient(145deg,#315fa6,#28356f 60%,#192852);box-shadow:inset 0 0 0 2px #ffffff12,inset 0 0 28px #071333,0 8px 18px #070b20aa}
 .cell{transition:filter .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -199,9 +211,28 @@ body:after{opacity:.42;background-image:radial-gradient(circle,#fff 0 1px,transp
 .btn,.drop{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){body:before,body:after,.drop.requested,.battle-result-banner,.battle-score-card strong,.countdown-card:before,.victory-overlay:before,.victory-crown{animation:none!important}}
 
+
+/* MOBILE ARCADE POLISH */
+@media(max-width:600px){
+ .top-tools{justify-content:center;gap:9px}
+ .sound-toggle,.stream-toggle{min-height:40px}
+ .request-team label{line-height:1.35}
+ .request-team input,.request-team select{min-height:42px;font-size:13px}
+ .request-team button{min-height:42px;line-height:1.25}
+ .board-wrap{box-shadow:0 0 0 3px #25133d,0 0 24px #9d5bff55,0 14px 30px #0008}
+ .status{line-height:1.35}
+}
+@media(max-width:360px){
+ .request-controls{grid-template-columns:1fr;gap:10px}
+ .request-team{grid-template-columns:1fr 1fr;align-items:center}
+ .request-team label{grid-column:1/-1}
+ .request-team button{grid-column:1/-1}
+}
+
 </style>
 </head>
 <body>
+<div class="smoke-fx" aria-hidden="true"><i class="smoke-cloud one"></i><i class="smoke-cloud two"></i><i class="smoke-cloud three"></i></div>
 <main class="app">
 <header><div class="eyebrow">Smoke After Dark</div><h1>BATTLE <span>CONNECT 4</span></h1><p class="sub">Battle results decide who drops. Four in a row wins.</p></header>
 <div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Effects on</button><button class="sound-toggle" id="musicToggle" aria-pressed="false">🎵 Victory music on</button><a class="stream-toggle" id="streamToggle" href="stream.html" target="_blank" rel="noopener">📺 OPEN STREAM DISPLAY ↗</a></div>
