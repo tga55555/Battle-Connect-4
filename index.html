@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101322">
-<title>Smoke After Dark | Battle Connect 4</title>
+<title>Connect Smoke | Battle Connect 4</title>
 <style>
 :root{color-scheme:dark;--bg:#101322;--panel:#1a2035;--panel2:#242d49;--muted:#aab3ce;--red:#ff5268;--yellow:#ffd34e;--blue:#587dff;--line:#354263}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#29365c 0,#101322 58%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#f7f8ff;display:flex;justify-content:center;padding:22px 14px 36px}
@@ -217,12 +217,24 @@ body{isolation:isolate}
  .request-team button{grid-column:1/-1}
 }
 
+
+/* CONNECT SMOKE BRAND LOCKUP */
+.brand-lockup{display:grid;justify-items:center;gap:0;margin:10px 0 8px;line-height:.88}
+.brand-connect{display:block;font-size:clamp(32px,8.5vw,52px);font-weight:1000;letter-spacing:.045em;color:#f7f5ff;text-shadow:0 3px 0 #342052,0 0 12px #8fcaffaa,0 0 28px #7d5bff88}
+.brand-smoke{display:flex;align-items:center;justify-content:center;gap:1px;margin-top:4px;font-size:clamp(39px,10vw,62px);font-weight:1000;letter-spacing:-.055em;color:#e8d8ff;text-shadow:0 0 8px #c58aff,0 0 22px #8d45ff,0 3px 0 #31164e}
+.brand-four{width:clamp(43px,11vw,69px);height:1.08em;overflow:visible;flex:none;margin-left:1px;filter:drop-shadow(0 0 5px #39e7ff) drop-shadow(0 0 13px #6e5bff)}
+.brand-four path{fill:none;stroke:#49e8ff;stroke-width:7;stroke-linecap:square;stroke-linejoin:bevel}
+.brand-four .inner{stroke:#f0b8ff;stroke-width:2.2;opacity:.95}
+.brand-tagline{margin:8px 0 0;color:#e0d2f6;font-size:12px;letter-spacing:.04em}
+@media(min-width:600px){.brand-connect{font-size:56px}.brand-smoke{font-size:66px}.brand-four{width:72px}}
+@media(prefers-reduced-motion:no-preference){.brand-four{animation:brandGlow 2.8s ease-in-out infinite alternate}@keyframes brandGlow{to{filter:drop-shadow(0 0 8px #39e7ff) drop-shadow(0 0 20px #a45bff)}}}
+
 </style>
 </head>
 <body>
 <div class="smoke-fx" aria-hidden="true"><canvas id="smokeCanvas"></canvas></div>
 <main class="app">
-<header><div class="eyebrow">Smoke After Dark</div><h1>BATTLE <span>CONNECT 4</span></h1><p class="sub">Battle results decide who drops. Four in a row wins.</p></header>
+<header><div class="eyebrow">SMOKE AFTER DARK</div><div class="brand-lockup" aria-label="Connect Smoke"><span class="brand-connect">CONNECT</span><span class="brand-smoke">SMOK<svg class="brand-four" viewBox="0 0 82 88" role="img" aria-label="stylized E and 4"><path d="M9 45 L39 7 L39 80 M10 45 H72 M39 12 H72 M39 80 H72"/><path class="inner" d="M9 45 L39 7 L39 80 M10 45 H72 M39 12 H72 M39 80 H72"/></svg></span></div><p class="sub brand-tagline">Battle results decide who drops · Four in a row wins.</p></header>
 <div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Effects on</button><button class="sound-toggle" id="musicToggle" aria-pressed="false">🎵 Victory music on</button><a class="stream-toggle" id="streamToggle" href="stream.html" target="_blank" rel="noopener">📺 OPEN STREAM DISPLAY ↗</a></div>
 <section class="scoreboard" aria-label="Players and scores">
 <div class="player active" id="player1"><div><i class="dot" style="background:var(--red)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 1</span></div><input id="name1" value="RED TEAM" maxlength="16" aria-label="Player 1 name"><div class="score" id="score1">0</div></div>
