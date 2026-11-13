@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101322">
+<title>Connect Smoke | Battle Connect 4</title>
+<style>
+:root{color-scheme:dark;--bg:#101322;--panel:#1a2035;--panel2:#242d49;--muted:#aab3ce;--red:#ff5268;--yellow:#ffd34e;--blue:#587dff;--line:#354263}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#29365c 0,#101322 58%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#f7f8ff;display:flex;justify-content:center;padding:22px 14px 36px}
+.app{width:min(100%,560px)}header{text-align:center;margin:4px 0 20px} .eyebrow{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:#9eacd8;font-weight:800}h1{font-size:clamp(32px,8vw,48px);line-height:1;margin:8px 0 7px;letter-spacing:-.05em}h1 span{color:var(--yellow)}.sub{color:var(--muted);font-size:13px;margin:0}
+.scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:14px}.player{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:12px 10px;text-align:center;min-width:0}.player.active{border-color:#91a9ff;box-shadow:0 0 0 2px #587dff33}.player .dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:-1px}.player input{width:100%;min-width:0;background:transparent;border:0;color:white;text-align:center;font-size:14px;font-weight:800;outline:none;margin-top:7px}.score{font-size:25px;font-weight:900;margin-top:3px;font-variant-numeric:tabular-nums}.vs{font-size:11px;color:#9eacd8;font-weight:900;letter-spacing:.12em}
+.status{background:linear-gradient(110deg,#252f50,#1b233a);border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:13px;display:flex;align-items:center;gap:10px;min-height:56px}.status .status-dot{width:11px;height:11px;border-radius:50%;flex:none;background:var(--red)}.status p{margin:0;font-size:14px;font-weight:750;flex:1}.status small{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-top:3px}
+.board-wrap{background:#18223c;border:1px solid #42547e;border-radius:20px;padding:12px;box-shadow:0 16px 40px #0005}.board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;background:#263c70;border-radius:14px;padding:9px}.cell{aspect-ratio:1;border-radius:50%;background:#111a30;box-shadow:inset 0 4px 7px #0008,0 1px 0 #ffffff18;display:grid;place-items:center;overflow:hidden}.piece{width:83%;height:83%;border-radius:50%;box-shadow:inset 0 3px 5px #ffffff45,inset 0 -5px 8px #0003,0 2px 4px #0005;animation:dropIn .48s cubic-bezier(.2,.8,.25,1)}.red{background:var(--red)}.yellow{background:var(--yellow)}.winning{outline:3px solid white;outline-offset:1px;filter:brightness(1.2);animation:winPulse .8s ease-in-out infinite alternate}@keyframes dropIn{0%{transform:translateY(-260%) scale(.82);opacity:.5}75%{transform:translateY(8%) scale(1.04)}100%{transform:translateY(0) scale(1);opacity:1}}@keyframes winPulse{to{filter:brightness(1.65);box-shadow:0 0 18px #fff}}
+.columns{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;padding:0 9px;margin-top:10px}.drop{border:1px solid #536a9e;background:#26385f;color:white;border-radius:9px;padding:10px 0;font-weight:900;font-size:16px;cursor:pointer;transition:.15s}.drop:hover:not(:disabled){background:#3a528a;transform:translateY(-2px)}.drop:disabled{opacity:.25;cursor:not-allowed}.drop.requested{border:2px solid #fff0a6;background:linear-gradient(180deg,#a46a35,#68421f);box-shadow:0 0 0 2px #ffe27a55,0 0 18px #ffe27a66}.request-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;padding:12px;border:1px solid #73559b;border-radius:13px;background:#17132b}.request-team{display:grid;gap:7px;min-width:0}.request-team label{font-size:11px;font-weight:900;letter-spacing:.08em}.request-team input,.request-team select{width:100%;min-width:0;padding:10px;border:1px solid #66558d;border-radius:9px;background:#25203d;color:#fff;font-weight:800}.request-team select{padding:10px;border:1px solid #66558d;border-radius:9px;background:#25203d;color:#fff;font-weight:800}.request-team button{padding:9px;border:1px solid #8a6ab6;border-radius:9px;background:#49336b;color:#fff;font-weight:900}.request-current{font-size:11px;color:#ffe8a1;min-height:15px}@media(max-width:380px){.request-controls{gap:7px;padding:8px}.request-team button{font-size:11px}}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.btn{border:1px solid var(--line);border-radius:12px;padding:12px 10px;background:var(--panel2);color:white;font-weight:800;font-size:13px;cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue)}.btn:disabled{opacity:.4;cursor:not-allowed}.helper{text-align:center;color:var(--muted);font-size:11px;line-height:1.5;margin:12px 8px 0}.winner-panel{display:none;text-align:center;padding:13px;margin-top:13px;border:1px solid #77663c;background:#332d20;border-radius:13px}.winner-panel.show{display:block}.winner-panel strong{color:var(--yellow);font-size:17px}.winner-panel p{margin:5px 0 0;color:#e3d7b5;font-size:12px}.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 0 12px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 6px;text-align:center}.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.stat span{font-size:9px;letter-spacing:.1em;color:var(--muted);font-weight:800;text-transform:uppercase}.streak-red{color:var(--red)}.streak-yellow{color:var(--yellow)}.top-tools{display:flex;justify-content:flex-end;margin:-7px 0 10px}.sound-toggle{border:1px solid var(--line);background:var(--panel);color:#e8edff;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:800;cursor:pointer}.announcement{position:fixed;z-index:10;left:50%;top:18%;transform:translate(-50%,-20px) scale(.8);opacity:0;pointer-events:none;background:#171d31;border:2px solid var(--blue);border-radius:18px;padding:17px 24px;text-align:center;box-shadow:0 14px 50px #000b;min-width:min(88vw,340px)}.announcement.show{animation:announce .95s ease both}.announcement.show.streak-ann{animation-duration:3s}.announcement strong{display:block;font-size:clamp(20px,6vw,30px);font-weight:1000}.announcement small{color:#c4cce3;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.announcement.red-ann{border-color:var(--red)}.announcement.yellow-ann{border-color:var(--yellow)}@keyframes announce{0%{opacity:0;transform:translate(-50%,-30px) scale(.75)}18%,78%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-12px) scale(.96)}}.winner-panel.show{animation:winPanel .55s ease both}@keyframes winPanel{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}.confetti{position:fixed;z-index:9;top:-14px;width:9px;height:14px;pointer-events:none;animation:confettiFall 2.5s linear forwards}@keyframes confettiFall{to{transform:translateY(110vh) rotate(760deg);opacity:0}}.footer{text-align:center;color:#657194;font-size:10px;margin-top:18px}
+@media(max-width:380px){.board{gap:5px;padding:7px}.columns{gap:5px;padding:0 7px}.drop{padding:9px 0}.player{padding:10px 6px}}
+
+/* FUN ARCADE VISUAL REFRESH */
+:root{--bg:#100b25;--panel:#211638;--panel2:#30204b;--muted:#c5b8df;--blue:#8b5cf6;--line:#65458a}
+body{background:radial-gradient(ellipse at 12% 8%,#54256f 0,transparent 34%),radial-gradient(ellipse at 88% 18%,#173f72 0,transparent 30%),linear-gradient(145deg,#100b25,#17102f 55%,#0b1830);background-attachment:fixed}
+.app{position:relative}
+header{padding:18px 12px 20px;border:1px solid #70499a;border-radius:24px;background:linear-gradient(120deg,#35164eeb,#1b2850eb);box-shadow:0 12px 36px #05020d99,inset 0 1px #ffffff22;overflow:hidden}
+
+.eyebrow{color:#f3c7ff}
+h1{ text-shadow:0 3px 0 #32134b,0 0 24px #c45cff66}
+h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-clip:text;-webkit-background-clip:text;color:transparent}
+.sub{color:#e0d2f6}
+.player{background:linear-gradient(155deg,#34204e,#1c1837);border:1px solid #75529a;border-radius:18px;box-shadow:0 7px 20px #07031377}
+.player.active{border-color:#fff0a6;box-shadow:0 0 0 2px #ffe27a44,0 0 24px #c77aff55}
+.player input{font-size:15px}
+.score{font-size:30px;text-shadow:0 0 18px currentColor}
+#player1 .score{color:#ff718c}#player2 .score{color:#ffe17a}
+.vs{color:#ffcbfa;text-shadow:0 0 12px #ff77e8}
+.stat{background:linear-gradient(150deg,#2e1d48,#17172f);border:1px solid #61447e;border-radius:15px;box-shadow:0 6px 16px #08031366}
+.stat b{color:#fff0a6;text-shadow:0 0 12px #ffcf6b55}
+.status{background:linear-gradient(100deg,#48275c,#1b3154);border:1px solid #8b5ca9;box-shadow:0 8px 22px #05020c66}
+.board-wrap{background:linear-gradient(145deg,#34205b,#172b55);border:2px solid #9870ce;border-radius:24px;padding:13px;box-shadow:0 0 0 4px #25133d,0 0 30px #9d5bff55,0 18px 38px #0008}
+.board{background:linear-gradient(145deg,#285ca0,#26346f);border:2px solid #7cbcff;border-radius:18px;padding:10px;gap:7px;box-shadow:inset 0 0 22px #0a153b}
+.cell{background:radial-gradient(circle at 35% 28%,#1b294b,#080f25 72%);box-shadow:inset 0 5px 10px #000b,0 1px 0 #ffffff22}
+.piece{width:86%;height:86%;box-shadow:inset 0 4px 7px #ffffff77,inset 0 -7px 10px #0005,0 0 13px currentColor,0 3px 6px #0008}
+.piece.red{background:radial-gradient(circle at 32% 25%,#ffb0bd,#ff416b 48%,#b90e45);color:#ff557e}
+.piece.yellow{background:radial-gradient(circle at 32% 25%,#fff5b0,#ffdc42 48%,#d88a12);color:#ffdf55}
+.drop{background:linear-gradient(180deg,#7d5ac0,#493178);border:1px solid #b89be9;border-radius:10px;font-size:19px;box-shadow:0 4px 0 #24143d;color:#fff}
+.drop:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #24143d}
+.actions{gap:10px}
+.btn{background:linear-gradient(145deg,#443064,#292044);border:1px solid #8664aa;border-radius:14px;box-shadow:0 4px 0 #160d27;font-size:13px;min-height:48px;transition:transform .15s,filter .15s}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #160d27}
+#redWon{background:linear-gradient(135deg,#ff5578,#b91c50);border-color:#ff9aad}
+#yellowWon{background:linear-gradient(135deg,#ffe36b,#d99a20);border-color:#fff0a0;color:#38220a}
+#nextBattle{background:linear-gradient(135deg,#16b8a6,#087b91);border-color:#73f3df}
+.btn.primary{background:linear-gradient(135deg,#a56bff,#6844d4);border-color:#d1b6ff}
+.sound-toggle{background:linear-gradient(120deg,#382653,#202d50);border-color:#8863ad;padding:9px 14px}
+.announcement{background:linear-gradient(145deg,#40205e,#172c52);box-shadow:0 0 0 5px #ffffff12,0 0 40px #b56cff88,0 18px 55px #000b}
+.winner-panel{background:linear-gradient(120deg,#453019,#302047);border-color:#ffdc70;box-shadow:0 0 22px #ffcf6b33}
+.helper{color:#c7b8df}
+.footer{color:#9b87bd}
+@media(max-width:420px){body{padding:12px 10px 26px}.app{width:100%}header{padding:15px 8px 17px;margin-bottom:14px}.board-wrap{padding:9px;border-radius:19px}.board{gap:5px;padding:7px}.columns{gap:5px;padding:0 7px}.drop{min-height:39px}.actions{gap:8px}.btn{padding:11px 7px;font-size:12px;min-height:46px}.stats{gap:6px}.stat{padding:8px 3px}.stat span{font-size:8px;letter-spacing:.06em}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+
+/* BIG CONNECT-FOUR VICTORY SCREEN */
+.victory-overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 38%,#55327bdc 0,#160d2df2 62%,#080615f7 100%);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.victory-overlay.show{display:flex;animation:victoryFade .35s ease both}
+.victory-card{position:relative;width:min(100%,430px);padding:30px 22px 24px;text-align:center;border:2px solid #ffe28a;border-radius:28px;background:linear-gradient(155deg,#48235f,#20204b 58%,#142c50);box-shadow:0 0 0 6px #ffffff12,0 0 45px #d68aff77,0 24px 80px #000c;overflow:hidden;animation:victoryPop .7s cubic-bezier(.18,.9,.25,1.2) both}
+.victory-card:before,.victory-card:after{content:"✦";position:absolute;color:#ffe68b;font-size:42px;text-shadow:0 0 18px #ffe68b;animation:starFloat 2s ease-in-out infinite alternate}
+.victory-card:before{left:18px;top:20px}.victory-card:after{right:18px;top:38px;animation-delay:.5s}
+.victory-crown{font-size:58px;line-height:1.1;filter:drop-shadow(0 0 16px #ffe27a);animation:crownBounce 1s ease-in-out infinite alternate}
+.victory-kicker{margin:12px 0 7px;color:#ffe9a8;font-size:12px;font-weight:1000;letter-spacing:.24em}
+.victory-title{margin:0;font-size:clamp(30px,8vw,48px);line-height:1.02;font-weight:1000;letter-spacing:-.04em;text-transform:uppercase;text-shadow:0 4px 0 #32164b,0 0 25px #ffffff55;overflow-wrap:anywhere}
+.victory-subtitle{margin:12px 0 22px;color:#e8dafa;font-size:15px;font-weight:800;letter-spacing:.08em}
+.victory-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 20px}.victory-stat{min-width:0}.victory-stat b{font-size:clamp(17px,4vw,22px)}.victory-stat{padding:10px 5px;border:1px solid #ffffff2b;border-radius:12px;background:#ffffff10}.victory-stat b{display:block;font-size:22px;color:#fff0a6;font-variant-numeric:tabular-nums}.victory-stat span{display:block;margin-top:4px;color:#e5d8f5;font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}.victory-next{width:100%;border:1px solid #fff0a7;border-radius:15px;padding:15px 12px;background:linear-gradient(110deg,#ffe17a,#ffad62);color:#321a36;font-size:15px;font-weight:1000;letter-spacing:.08em;box-shadow:0 5px 0 #8e4a45;cursor:pointer}
+.victory-next:active{transform:translateY(3px);box-shadow:0 2px 0 #8e4a45}
+.victory-red .victory-card{border-color:#ff829e;box-shadow:0 0 0 6px #ffffff12,0 0 48px #ff477c88,0 24px 80px #000c}
+.victory-red .victory-title{color:#ff9bb0}
+.victory-yellow .victory-card{border-color:#ffe27a;box-shadow:0 0 0 6px #ffffff12,0 0 48px #ffdc5588,0 24px 80px #000c}
+.victory-yellow .victory-title{color:#ffe27a}
+@keyframes victoryFade{from{opacity:0}to{opacity:1}}
+@keyframes victoryPop{0%{transform:translateY(35px) scale(.72);opacity:0}65%{transform:translateY(-5px) scale(1.04);opacity:1}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes crownBounce{to{transform:translateY(-8px) rotate(-4deg)}}
+@keyframes starFloat{to{transform:translateY(-9px) rotate(18deg);opacity:.65}}
+.confetti{z-index:22}
+@media(max-width:420px){.victory-card{padding:22px 15px 18px;border-radius:23px}.victory-stats{gap:6px}.victory-stat{padding:8px 3px}.victory-stat span{font-size:8px}.victory-crown{font-size:52px}.victory-subtitle{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.victory-overlay.show,.victory-card,.victory-crown,.victory-card:before,.victory-card:after{animation:none!important}}
+
+
+/* RUNNING BATTLE HISTORY */
+.battle-history{margin:0 0 14px;padding:13px 14px;border:1px solid #75529a;border-radius:16px;background:linear-gradient(145deg,#2b1b43,#17172f);box-shadow:0 7px 18px #08031355}
+.history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.history-heading strong{font-size:11px;letter-spacing:.16em;color:#f4d5ff}
+.history-heading span{font-size:10px;color:#bca8d8}
+.history-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:220px;overflow:auto}
+.history-item{display:grid;grid-template-columns:68px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;background:#ffffff09;border:1px solid #ffffff12;font-size:12px}
+.history-number{color:#bba9d6;font-size:10px;font-weight:800;letter-spacing:.06em}
+.history-winner{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-winner.red-text{color:#ff829a}.history-winner.yellow-text{color:#ffe27a}
+.history-drop{font-size:10px;color:#d5c8e8;text-align:right;white-space:nowrap}
+.history-empty{text-align:center;color:#bba9d6;font-size:11px;padding:10px 4px}
+@media(max-width:420px){.battle-history{padding:11px}.history-item{grid-template-columns:58px minmax(0,1fr) auto;gap:6px;padding:8px 7px}.history-drop{font-size:9px}}
+
+
+/* PHASE 1 FINISHING TOUCHES: COUNTDOWN, SPECTATOR CLARITY, DEVICE + STREAM POLISH */
+.top-tools{gap:8px;flex-wrap:wrap}.sound-toggle{min-height:38px}
+.spectator-strip{display:grid;grid-template-columns:1fr;gap:6px;margin:0 0 12px;padding:11px 13px;border:1px solid #8660ad;border-radius:14px;background:linear-gradient(110deg,#291a43,#172b4b);box-shadow:0 6px 16px #07031366}
+.spectator-strip span{display:flex;align-items:center;gap:7px;color:#d8c9ed;font-size:11px}
+.spectator-strip b{color:#fff0a6;font-size:11px;letter-spacing:.02em}
+#startBattle{background:linear-gradient(135deg,#8b5cf6,#5736b8);border-color:#d0b2ff}
+.countdown-overlay{position:fixed;inset:0;z-index:18;display:none;align-items:center;justify-content:center;padding:20px;background:#080516eF;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.countdown-overlay.show{display:flex;animation:victoryFade .2s ease both}
+.countdown-card{text-align:center;width:min(82vw,340px);padding:28px 18px;border:2px solid #c5a1ff;border-radius:26px;background:linear-gradient(145deg,#492568,#172d52);box-shadow:0 0 45px #a56bff99,0 20px 65px #000b}
+.countdown-card small,.countdown-card span{display:block;color:#f4d8ff;font-weight:1000;letter-spacing:.2em}
+.countdown-card strong{display:block;margin:5px 0;font-size:clamp(100px,28vw,150px);line-height:1;color:#ffe27a;text-shadow:0 0 28px #ffcf6b88;animation:crownBounce .5s ease-in-out infinite alternate}
+.countdown-card span{font-size:13px}
+@media(min-width:600px){.app{width:min(100%,760px)}.spectator-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:12px 15px}.spectator-strip span{justify-content:center}.board-wrap{padding:17px}.board{gap:10px;padding:13px}.columns{gap:10px;padding:0 13px}.drop{min-height:48px;font-size:20px}.btn{font-size:14px;min-height:50px}.player{padding:15px}.score{font-size:34px}}
+@media(min-width:900px){body{padding:18px 24px}.app{width:min(100%,900px)}header{margin-bottom:16px}.scoreboard{max-width:700px;margin-left:auto;margin-right:auto}.stats{max-width:700px;margin-left:auto;margin-right:auto}.battle-history{max-width:700px;margin-left:auto;margin-right:auto}.status{max-width:700px;margin-left:auto;margin-right:auto}.board-wrap{max-width:700px;margin-left:auto;margin-right:auto}.actions{max-width:700px;margin-left:auto;margin-right:auto}.helper{max-width:680px;margin-left:auto;margin-right:auto}}
+@media(orientation:landscape) and (max-height:600px){body{padding:8px}.app{width:min(100%,920px)}header{padding:9px;margin:0 0 8px}header:before{display:none}h1{font-size:30px;margin:4px}.sub{font-size:11px}.scoreboard{margin-bottom:7px}.stats{margin-bottom:7px}.battle-history{margin-bottom:7px}.history-list{max-height:90px}.board-wrap{padding:7px}.board{gap:4px;padding:6px}.columns{margin-top:5px}.drop{min-height:30px;padding:4px}.actions{margin-top:7px}.btn{min-height:36px;padding:7px}.helper{margin-top:6px}.footer{margin-top:7px}}
+@media(prefers-reduced-motion:reduce){.countdown-card strong{animation:none!important}}
+
+
+
+.stream-toggle{display:inline-flex;align-items:center;text-decoration:none;border:1px solid #f3d18b;background:linear-gradient(120deg,#68429a,#283d70);color:#fff4d5;border-radius:999px;padding:9px 14px;font-size:11px;font-weight:1000;letter-spacing:.04em;min-height:38px;box-shadow:0 0 16px #b77aff44}
+/* LIVE BATTLE SCOREBOARD UPGRADE */
+.battle-scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center;max-width:700px;margin:-3px auto 13px;padding:10px;border:1px solid #9a70c5;border-radius:16px;background:linear-gradient(110deg,#28183f,#172b4b);box-shadow:0 7px 18px #08031366}
+.battle-score-card{padding:9px 7px;text-align:center;border-radius:12px;background:#ffffff0b;border:1px solid #ffffff1b;min-width:0}.battle-score-card.red-card{border-color:#ff718c66}.battle-score-card.yellow-card{border-color:#ffe17a66}
+.battle-score-card small{display:block;color:#d8c9ed;font-size:9px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase}.battle-score-card strong{display:block;margin-top:3px;font-size:clamp(23px,5vw,32px);font-weight:1000;font-variant-numeric:tabular-nums}.battle-score-card.red-card strong{color:#ff829a}.battle-score-card.yellow-card strong{color:#ffe27a}
+.battle-score-label{font-size:10px;font-weight:1000;letter-spacing:.12em;color:#f3d5ff;text-align:center}
+.battle-result-banner{max-width:700px;margin:0 auto 12px;padding:11px 14px;text-align:center;border:1px solid #a879d5;border-radius:13px;background:linear-gradient(100deg,#3a2057,#1b3154);color:#fff0a6;font-size:clamp(11px,2.5vw,14px);font-weight:1000;letter-spacing:.05em;box-shadow:0 0 18px #a56bff22}.battle-result-banner.red-result{border-color:#ff718c;color:#ff9caf}.battle-result-banner.yellow-result{border-color:#ffe17a;color:#ffe27a}
+@media(max-width:420px){.battle-scoreboard{gap:5px;padding:7px;margin-bottom:10px}.battle-score-card{padding:7px 4px}.battle-score-card small{font-size:8px}.battle-result-banner{padding:9px 7px}}
+.announcement.streak-ann{border-width:3px;box-shadow:0 0 0 5px #ffffff12,0 0 48px currentColor,0 18px 60px #000c;padding:22px 26px}.announcement.streak-ann strong{font-size:clamp(25px,7vw,38px);text-shadow:0 0 20px currentColor}.announcement.streak-ann small{font-size:12px;color:#fff0a6;letter-spacing:.15em}
+.operator-health{margin:10px 0;padding:10px 12px;border:1px solid #8060a4;border-radius:11px;background:#211638;color:#e8dcff;font-size:11px;font-weight:800;text-align:center;line-height:1.5}
+
+/* FINAL PHASE 2 HOST SHORTCUTS + RECOVERY NOTICE */
+.quick-host-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px}
+.quick-host-controls .btn{font-size:10px;min-height:42px;padding:8px 5px;border-color:#a987d2;background:linear-gradient(145deg,#493064,#292044)}
+.quick-host-controls button:disabled{opacity:.35}
+.recovery-notice{margin:0 0 10px;padding:10px 13px;border:1px solid #8be0b5;border-radius:12px;background:#123c35;color:#c8ffe4;font-size:12px;font-weight:800;text-align:center}
+@media(max-width:420px){.quick-host-controls{gap:5px}.quick-host-controls .btn{font-size:9px;letter-spacing:-.02em}}
+
+/* SMOKE AFTER DARK BRANDING */
+.eyebrow{display:table;margin:0 auto 9px;padding:6px 15px;border:1px solid #c98bff88;border-radius:999px;background:linear-gradient(90deg,#ffe27a20,#ff9dca20,#b6a0ff20);color:#ffe6a0;font-size:clamp(12px,1.7vw,15px);font-weight:1000;letter-spacing:.2em;text-shadow:0 0 13px #ffb5df88;box-shadow:0 0 16px #c45cff22}
+
+
+/* TITLE BRANDING POLISH */
+header{position:relative}
+.eyebrow{display:inline-flex;align-items:center;justify-content:center;margin:0 auto 10px;padding:8px 19px;border:1px solid #ffd98b;background:linear-gradient(100deg,#ffcf5a 0%,#ff8fc8 48%,#b48aff 100%);color:#211331;font-size:clamp(13px,2vw,16px);font-weight:1000;letter-spacing:.22em;text-shadow:0 1px 0 #ffffff88;box-shadow:0 0 0 3px #d78bff22,0 0 22px #ff8acb66,0 0 42px #8b5cf633;border-radius:999px}
+h1{font-size:clamp(36px,9vw,54px);font-weight:1000;letter-spacing:-.055em;line-height:.98;margin:11px 0 10px;color:#fff;text-shadow:0 3px 0 #32134b,0 0 9px #ffffff55,0 0 25px #c45cff99,0 5px 24px #000b}
+h1 span{background:linear-gradient(100deg,#fff2a6 0%,#ffd34e 24%,#ff91c8 58%,#c1a0ff 100%);background-clip:text;-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 0 10px #d78bff99) drop-shadow(0 3px 0 #45205f)}
+header .sub{font-weight:650;letter-spacing:.015em;text-shadow:0 1px 10px #b47aff55}
+@media(max-width:380px){.eyebrow{letter-spacing:.15em;padding:7px 13px}h1{font-size:clamp(32px,9vw,42px)}}
+
+
+/* MATCH BATTLE TO THE CONNECT 4 TITLE GRADIENT */
+h1{background:linear-gradient(100deg,#fff2a6 0%,#ffd34e 24%,#ff91c8 58%,#c1a0ff 100%);background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px #d78bff99) drop-shadow(0 3px 0 #45205f)}
+h1 span{background:linear-gradient(100deg,#fff2a6 0%,#ffd34e 24%,#ff91c8 58%,#c1a0ff 100%);background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+
+
+/* GIVE THE SUBTITLE A LITTLE MORE SPACE BELOW THE GLOWING TITLE */
+header .sub{margin-top:9px}
+
+/* INCREASE CLEARANCE BELOW THE TITLE GLOW */
+header .sub{margin-top:20px}
+
+/* KEEP SUBTITLE CLEAR OF THE TITLE'S PURPLE GLOW */
+header .sub{margin-top:34px;position:relative;z-index:1}
+
+/* LIVE SMOKE CANVAS — animated volumetric wisps, rendered without SVG filters */
+body{isolation:isolate}
+.smoke-fx{position:fixed;inset:0;z-index:0;display:block;overflow:hidden;pointer-events:none;opacity:1}
+#smokeCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.94;mix-blend-mode:normal}
+.app,.shell{position:relative;z-index:1}
+@media(max-width:600px){.smoke-plume{width:175vw;height:72vh;min-height:560px;filter:blur(30px);-webkit-filter:blur(30px)}.smoke-plume.a{left:-58%}.smoke-plume.b{right:-62%}.smoke-plume.c{left:-50%}.smoke-plume.d{right:-52%}}
+
+.board-wrap{border:2px solid #a78bfa;background:linear-gradient(145deg,#3b2363,#172b55 62%,#111a3b);box-shadow:inset 0 2px 0 #ffffff22,0 0 0 4px #291642,0 0 30px #9d5bff66,0 18px 42px #0009}
+.board{border:1px solid #8fc5ff;background:linear-gradient(145deg,#315fa6,#28356f 60%,#192852);box-shadow:inset 0 0 0 2px #ffffff12,inset 0 0 28px #071333,0 8px 18px #070b20aa}
+.cell{transition:filter .18s ease,box-shadow .18s ease,transform .18s ease}
+.piece.red{box-shadow:inset 0 3px 6px #ffffff70,inset 0 -6px 9px #0005,0 0 9px #ff416b,0 0 20px #ff416b88,0 3px 5px #0008}
+.piece.yellow{box-shadow:inset 0 3px 6px #ffffff88,inset 0 -6px 9px #0005,0 0 9px #ffdc42,0 0 20px #ffdc4288,0 3px 5px #0008}
+.piece.red:after,.piece.yellow:after{content:"";display:block;width:38%;height:24%;margin:17% 0 0 18%;border-radius:50%;background:#ffffff70;filter:blur(2px)}
+#board[data-preview="1"] .cell:nth-child(7n+1),#board[data-preview="2"] .cell:nth-child(7n+2),#board[data-preview="3"] .cell:nth-child(7n+3),#board[data-preview="4"] .cell:nth-child(7n+4),#board[data-preview="5"] .cell:nth-child(7n+5),#board[data-preview="6"] .cell:nth-child(7n+6),#board[data-preview="7"] .cell:nth-child(7n+7){filter:brightness(1.2);box-shadow:inset 0 0 0 2px #fff5,0 0 13px #c4b5fd66}
+#board[data-preview-team="1"][data-preview="1"] .cell:nth-child(7n+1),#board[data-preview-team="1"][data-preview="2"] .cell:nth-child(7n+2),#board[data-preview-team="1"][data-preview="3"] .cell:nth-child(7n+3),#board[data-preview-team="1"][data-preview="4"] .cell:nth-child(7n+4),#board[data-preview-team="1"][data-preview="5"] .cell:nth-child(7n+5),#board[data-preview-team="1"][data-preview="6"] .cell:nth-child(7n+6),#board[data-preview-team="1"][data-preview="7"] .cell:nth-child(7n+7){box-shadow:inset 0 0 0 2px #ff829a99,0 0 15px #ff416b66}
+#board[data-preview-team="2"][data-preview="1"] .cell:nth-child(7n+1),#board[data-preview-team="2"][data-preview="2"] .cell:nth-child(7n+2),#board[data-preview-team="2"][data-preview="3"] .cell:nth-child(7n+3),#board[data-preview-team="2"][data-preview="4"] .cell:nth-child(7n+4),#board[data-preview-team="2"][data-preview="5"] .cell:nth-child(7n+5),#board[data-preview-team="2"][data-preview="6"] .cell:nth-child(7n+6),#board[data-preview-team="2"][data-preview="7"] .cell:nth-child(7n+7){box-shadow:inset 0 0 0 2px #ffe27a99,0 0 15px #ffdc4266}
+.drop{position:relative;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.drop:hover:not(:disabled),.drop:focus-visible:not(:disabled){transform:translateY(-4px) scale(1.035);filter:brightness(1.25);box-shadow:0 0 0 2px #ffffff22,0 0 18px #c4b5fd88}
+.drop.requested{animation:requestBeacon 1.6s ease-in-out infinite alternate}
+@keyframes requestBeacon{to{filter:brightness(1.35);box-shadow:0 0 22px #ffe27a99}}
+.countdown-card{position:relative;overflow:hidden;box-shadow:0 0 0 5px #ffffff10,0 0 55px #a56bffbb,0 20px 70px #000c}
+.countdown-card:before{content:"";position:absolute;inset:-55%;border:1px solid #ffffff25;border-radius:50%;animation:countRing 5s linear infinite}
+.countdown-card:after{content:"⚡  RED  VS  YELLOW  ⚡";display:block;margin-top:13px;color:#ffe6a0;font-size:11px;font-weight:1000;letter-spacing:.15em;text-shadow:0 0 14px #ffcf6b}
+@keyframes countRing{to{transform:rotate(360deg) scale(1.12)}}
+.battle-score-card{transition:transform .25s ease,box-shadow .25s ease}
+.battle-score-card strong{animation:scoreGlow 2.8s ease-in-out infinite alternate}
+@keyframes scoreGlow{to{text-shadow:0 0 17px currentColor,0 0 28px #ffffff33;transform:scale(1.045)}}
+.battle-result-banner{animation:bannerGlow 3s ease-in-out infinite alternate}
+@keyframes bannerGlow{to{box-shadow:0 0 25px #a56bff55,0 0 45px #ec489922}}
+.victory-overlay:before{content:"";position:absolute;inset:8%;border:1px solid #ffe27a55;border-radius:32px;box-shadow:0 0 45px #d68aff44,inset 0 0 45px #d68aff22;pointer-events:none;animation:victoryFrame 3s ease-in-out infinite alternate}
+@keyframes victoryFrame{to{transform:scale(1.025);opacity:.45}}
+.victory-card{box-shadow:0 0 0 6px #ffffff12,0 0 55px #d68aff99,0 0 100px #ff91c855,0 24px 80px #000c}
+.victory-crown{filter:drop-shadow(0 0 18px #ffe27a);animation:crownBounce 1.4s ease-in-out infinite alternate}
+.btn,.drop{touch-action:manipulation}
+@media(prefers-reduced-motion:reduce){body:before,body:after,.drop.requested,.battle-result-banner,.battle-score-card strong,.countdown-card:before,.victory-overlay:before,.victory-crown{animation:none!important}}
+
+
+/* MOBILE ARCADE POLISH */
+@media(max-width:600px){
+ .top-tools{justify-content:center;gap:9px}
+ .sound-toggle,.stream-toggle{min-height:40px}
+ .request-team label{line-height:1.35}
+ .request-team input,.request-team select{min-height:42px;font-size:13px}
+ .request-team button{min-height:42px;line-height:1.25}
+ .board-wrap{box-shadow:0 0 0 3px #25133d,0 0 24px #9d5bff55,0 14px 30px #0008}
+ .status{line-height:1.35}
+}
+@media(max-width:360px){
+ .request-controls{grid-template-columns:1fr;gap:10px}
+ .request-team{grid-template-columns:1fr 1fr;align-items:center}
+ .request-team label{grid-column:1/-1}
+ .request-team button{grid-column:1/-1}
+}
+
+
+/* CONNECT SMOKE BRAND LOCKUP */
+.brand-lockup{display:grid;justify-items:center;gap:0;margin:10px 0 8px;line-height:.88}
+.brand-connect{display:block;font-size:clamp(32px,8.5vw,52px);font-weight:1000;letter-spacing:.045em;color:#f7f5ff;text-shadow:0 3px 0 #342052,0 0 12px #8fcaffaa,0 0 28px #7d5bff88}
+.brand-smoke{display:flex;align-items:center;justify-content:center;gap:1px;margin-top:4px;font-size:clamp(39px,10vw,62px);font-weight:1000;letter-spacing:-.055em;color:#e8d8ff;text-shadow:0 0 8px #c58aff,0 0 22px #8d45ff,0 3px 0 #31164e}
+.brand-four{width:clamp(43px,11vw,69px);height:1.08em;overflow:visible;flex:none;margin-left:1px;filter:drop-shadow(0 0 7px #ff315f) drop-shadow(0 0 12px #278bff) drop-shadow(0 0 20px #744dff)}
+.brand-four path{fill:none;stroke-linecap:square;stroke-linejoin:bevel}
+.brand-four .outline-red{stroke:#ff315f;stroke-width:10}
+.brand-four .outline-blue{stroke:#278bff;stroke-width:5.5}
+.brand-four .inner{stroke:#f7dfff;stroke-width:1.7;opacity:.98}
+.brand-tagline{margin:8px 0 0;color:#e0d2f6;font-size:12px;letter-spacing:.04em}
+@media(min-width:600px){.brand-connect{font-size:56px}.brand-smoke{font-size:66px}.brand-four{width:72px}}
+@media(prefers-reduced-motion:no-preference){.brand-four{animation:brandGlow 2.8s ease-in-out infinite alternate}@keyframes brandGlow{to{filter:drop-shadow(0 0 9px #ff315f) drop-shadow(0 0 15px #278bff) drop-shadow(0 0 23px #a45bff)}}}
+
+
+/* EXACT UPLOADED CONNECT SMOKE LOGO */
+.logo-header{padding:0 0 16px!important;margin:4px 0 20px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
+.logo-header .site-logo{display:block;width:100%;height:auto;max-height:420px;object-fit:contain;margin:0 auto;border:0;border-radius:0;filter:drop-shadow(0 8px 20px #0009)}
+.logo-header .brand-tagline{margin-top:12px!important}
+@media(max-width:600px){.logo-header{padding:0 0 12px!important}.logo-header .site-logo{max-height:none}}
+
+/* FULL-PAGE ELECTRIC BLUE + PURPLE SMOKE BACKDROP */
+body{background:
+ radial-gradient(ellipse at 3% 22%,rgba(0,105,255,.34) 0,rgba(0,73,210,.18) 24%,transparent 49%),
+ radial-gradient(ellipse at 96% 18%,rgba(203,25,231,.32) 0,rgba(111,36,214,.2) 27%,transparent 51%),
+ radial-gradient(ellipse at 52% 68%,rgba(102,38,222,.24) 0,transparent 54%),
+ linear-gradient(145deg,#05091e 0%,#100a2c 46%,#090d27 100%)!important;
+ background-attachment:fixed!important}
+.smoke-fx{opacity:1!important}
+#smokeCanvas{opacity:1!important;filter:saturate(1.3) contrast(1.08)}
+/* FULL-LENGTH CONNECT SMOKE IMAGE — KEEP IT IN NORMAL PAGE FLOW */
+html{min-height:100%;background:#07091d}
+body{
+ min-height:100vh;
+ background-color:#07091d!important;
+ background-image:
+  radial-gradient(ellipse at 8% 24%,rgba(0,105,255,.32) 0,rgba(0,75,220,.13) 30%,transparent 60%),
+  radial-gradient(ellipse at 92% 28%,rgba(190,32,235,.30) 0,rgba(112,38,218,.15) 32%,transparent 62%),
+  radial-gradient(ellipse at 50% 86%,rgba(94,43,220,.28) 0,transparent 58%),
+  linear-gradient(180deg,#07091d 0%,#130b2c 52%,#08091d 100%)!important;
+ background-position:center top!important;
+ background-size:100% 100%!important;
+ background-repeat:no-repeat!important;
+ background-attachment:scroll!important;
+}
+/* The tall artwork is shown as a real image, not a fixed background. */
+.smoke-fx{display:none!important}
+.app,.shell{position:relative;z-index:1}
+.logo-header{
+ display:block!important;
+ width:100%;
+ padding:0 0 16px!important;
+ margin:4px 0 20px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ overflow:visible!important;
+}
+.logo-header .site-logo{
+ display:block!important;
+ width:100%!important;
+ height:auto!important;
+ max-height:none!important;
+ object-fit:contain!important;
+ margin:0 auto!important;
+ border:0!important;
+ border-radius:0!important;
+ filter:drop-shadow(0 8px 20px #0009);
+}
+.logo-header .brand-tagline{
+ display:inline-block;
+ margin-top:12px!important;
+ padding:7px 12px;
+ border-radius:10px;
+ background:rgba(5,8,28,.72);
+ color:#fff!important;
+ text-shadow:0 1px 5px #000;
+}
+</style>
+</head>
+<body>
+<div class="smoke-fx" aria-hidden="true"><canvas id="smokeCanvas"></canvas></div>
+<main class="app">
+<header class="logo-header"><img class="site-logo" src="IMG_7443.jpeg" alt="CONNECT SMOKE full-length logo and smoke artwork"><p class="sub brand-tagline">Battle results decide who drops · Four in a row wins.</p></header>
+<div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Effects on</button><button class="sound-toggle" id="musicToggle" aria-pressed="false">🎵 Victory music on</button><a class="stream-toggle" id="streamToggle" href="stream.html" target="_blank" rel="noopener">📺 OPEN STREAM DISPLAY ↗</a></div>
+<section class="scoreboard" aria-label="Players and scores">
+<div class="player active" id="player1"><div><i class="dot" style="background:var(--red)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 1</span></div><input id="name1" value="RED TEAM" maxlength="16" aria-label="Player 1 name"><div class="score" id="score1">0</div></div>
+<div class="vs">VS</div>
+<div class="player" id="player2"><div><i class="dot" style="background:var(--yellow)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 2</span></div><input id="name2" value="YELLOW TEAM" maxlength="16" aria-label="Player 2 name"><div class="score" id="score2">0</div></div>
+</section>
+<section class="battle-scoreboard" aria-label="Battle wins scoreboard"><div class="battle-score-card red-card"><small id="battleName1">RED TEAM · BATTLE WINS</small><strong id="battleWins1">0</strong></div><div class="battle-score-label">BATTLE<br>SCORE</div><div class="battle-score-card yellow-card"><small id="battleName2">YELLOW TEAM · BATTLE WINS</small><strong id="battleWins2">0</strong></div></section><div class="battle-result-banner" id="battleResultBanner" role="status" aria-live="polite">BATTLE 1 · READY TO START</div><section class="stats" aria-label="Battle statistics"><div class="stat"><b id="battleCount">0</b><span>Battles played</span></div><div class="stat"><b id="streakCount">0</b><span id="streakLabel">Current streak</span></div><div class="stat"><b id="bestStreak">0</b><span>Best streak</span></div></section>
+<section class="battle-history" aria-label="Battle history">
+ <div class="history-heading"><strong>⚔️ BATTLE HISTORY</strong><span id="historySummary">No battles yet</span></div>
+ <ol class="history-list" id="historyList"><li class="history-empty">Battle results will appear here</li></ol>
+</section>
+<div class="countdown-overlay" id="countdownOverlay" aria-live="assertive" aria-hidden="true"><div class="countdown-card"><small>NEXT BATTLE</small><strong id="countdownNumber">3</strong><span>GET READY!</span></div></div>
+<div class="announcement" id="announcement" aria-live="assertive"><strong id="announcementTitle"></strong><small id="announcementSub">ONE DROP EARNED</small></div>
+<div class="victory-overlay" id="victoryOverlay" role="dialog" aria-modal="true" aria-labelledby="victoryTitle">
+ <div class="victory-card">
+  <div class="victory-crown" aria-hidden="true">🏆</div>
+  <div class="victory-kicker">CONNECT FOUR CHAMPION</div>
+  <h2 class="victory-title" id="victoryTitle">RED TEAM WINS!</h2>
+  <p class="victory-subtitle">🎉 FOUR IN A ROW! 🎉</p>
+  <div class="victory-stats" id="victoryStats" aria-label="Round statistics"></div>
+  <button class="victory-next" id="victoryNext">NEXT ROUND</button>
+ </div>
+</div>
+<div class="spectator-strip" aria-label="Battle instructions"><span>⚔️ <b id="spectatorPhase">READY TO START</b></span><span>🎯 <b id="spectatorNext">Next drop: waiting for battle</b></span><span>🔥 <b id="spectatorStreak">No streak yet</b></span></div>
+<div class="recovery-notice" id="recoveryNotice" hidden></div><div class="status" role="status" aria-live="polite"><span class="status-dot" id="turnDot"></span><p id="statusText">RED TEAM's turn<small>Drop again, or switch players when the battle result changes.</small></p></div>
+<section class="board-wrap" aria-label="Connect four game board">
+<div class="board" id="board"></div><div class="columns" id="columns" aria-label="Choose a column"></div>
+</section>
+<div class="winner-panel" id="winnerPanel"><strong id="winnerTitle"></strong><p id="winnerNote"></p></div>
+<section class="operator-panel" id="operatorPanel"><div class="operator-heading"><strong>🎛️ OPERATOR CONTROL PANEL</strong><span>Private controls · not shown in Stream View</span></div><div class="quick-host-controls" aria-label="Quick host controls"><button type="button" class="btn" id="clearAllRequests">CLEAR BOTH REQUESTS</button><button type="button" class="btn" id="restartCountdown">RESTART COUNTDOWN</button><button type="button" class="btn" id="readyNextBattle">READY FOR NEXT BATTLE</button></div><div class="keyboard-hints" aria-label="Keyboard shortcuts"><span><b>R</b> Red wins</span><span><b>Y</b> Yellow wins</span><span><b>1–7</b> Drop column</span><span><b>N</b> Next battle</span><span><b>U</b> Undo</span><span><b>S</b> Stream view</span></div><div class="request-controls" aria-label="Opponent-only drop requests"><div class="request-team"><label for="trustedRed">🔴 RED OPPONENT · TIKTOK @USERNAME</label><input id="trustedRed" type="text" maxlength="40" placeholder="@redOpponent" autocomplete="off"><label for="commenterRed">VERIFY CHAT COMMENTER</label><input id="commenterRed" type="text" maxlength="40" placeholder="Type exact TikTok username" autocomplete="off"><label for="requestRedCol">REQUESTED COLUMN</label><select id="requestRedCol"><option value="0">No request</option><option value="1">Column 1</option><option value="2">Column 2</option><option value="3">Column 3</option><option value="4">Column 4</option><option value="5">Column 5</option><option value="6">Column 6</option><option value="7">Column 7</option></select><button type="button" id="setRedRequest">SAVE RED REQUEST</button><button type="button" id="clearRedRequest">CLEAR RED REQUEST</button><span class="request-current" id="redRequestLabel">No request yet</span></div><div class="request-team"><label for="trustedYellow">🟡 YELLOW OPPONENT · TIKTOK @USERNAME</label><input id="trustedYellow" type="text" maxlength="40" placeholder="@yellowOpponent" autocomplete="off"><label for="commenterYellow">VERIFY CHAT COMMENTER</label><input id="commenterYellow" type="text" maxlength="40" placeholder="Type exact TikTok username" autocomplete="off"><label for="requestYellowCol">REQUESTED COLUMN</label><select id="requestYellowCol"><option value="0">No request</option><option value="1">Column 1</option><option value="2">Column 2</option><option value="3">Column 3</option><option value="4">Column 4</option><option value="5">Column 5</option><option value="6">Column 6</option><option value="7">Column 7</option></select><button type="button" id="setYellowRequest">SAVE YELLOW REQUEST</button><button type="button" id="clearYellowRequest">CLEAR YELLOW REQUEST</button><span class="request-current" id="yellowRequestLabel">No request yet</span></div></div><div class="operator-health" id="operatorHealth" role="status">💾 Game saves automatically · Checking stream display…</div><div class="actions"><button class="btn" id="pauseGame">⏸ Pause game</button><button class="btn" id="redWon">RED WON — drop 1</button><button class="btn" id="yellowWon">YELLOW WON — drop 1</button><button class="btn" id="startBattle">Start battle · 3-2-1</button><button class="btn" id="nextBattle" disabled>Next battle · 3-2-1</button><button class="btn" id="undo">Undo last drop</button><button class="btn primary" id="newRound">New round</button><button class="btn" id="reset">Reset scores & game</button></div></section>
+<p class="helper">Choose the winner of each battle, then choose a column to drop exactly one piece. Start the next battle before recording another result. The same player can win consecutive battles and drop consecutive pieces. The round winner starts the next round.</p>
+<div class="footer">BATTLE CONNECT 4 · STREAM OVERLAY FRIENDLY</div>
+</main>
+<script>
+(() => {
+const ROWS=6,COLS=7;
+let grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+let current=1,winner=0,winningCells=[],scores=[0,0],history=[],roundStarter=1,battleReady=true,battleWinnerSelected=false,dropRequests=[0,0],opponentHandles=['',''],requestSources=['',''];
+let battleCount=0,streakPlayer=0,streakCount=0,bestStreak=0,pendingSnapshot=null,soundEnabled=true,audioContext=null,lastPiece=null,battleLog=[];
+let roundBattleCount=0,roundDrops=[0,0],effectsEnabled=true,musicEnabled=true,countdownReady=false,countdownActive=false,countdownNumber=0,countdownTimer=null,restoring=false,paused=false,storageHealthy=true,lastSavedAt=0,recoveredGame=false;
+const $=id=>document.getElementById(id);
+let syncChannel=null;try{if('BroadcastChannel' in window)syncChannel=new BroadcastChannel('battle-connect4-sync')}catch(e){}
+const name=n=>($('name'+n).value.trim()||('PLAYER '+n));function isStreamOnline(){try{const beat=Number(localStorage.getItem('battleConnect4StreamHeartbeat')||0);return beat>0&&Date.now()-beat<7000}catch(e){return false}}function publishOperatorHeartbeat(){try{localStorage.setItem('battleConnect4OperatorHeartbeat',String(Date.now()))}catch(e){}}
+function playTone(freq=520,duration=.13,type='sine',channel='effects'){if(channel==='music'?!musicEnabled:!effectsEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();if(audioContext.state==='suspended')audioContext.resume();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audioContext.currentTime);gain.gain.setValueAtTime(.0001,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.12,audioContext.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+duration)}catch(e){}}
+function startBattleCountdown(){if(paused||winner||!battleReady||battleWinnerSelected||countdownReady||countdownActive)return;countdownActive=true;countdownNumber=3;const overlay=$('countdownOverlay'),number=$('countdownNumber');overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');let count=3;number.textContent=count;playTone(520,.12,'triangle');render();countdownTimer=setInterval(()=>{count--;if(count>0){countdownNumber=count;number.textContent=count;playTone(520,.12,'triangle');render()}else{clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;countdownNumber=0;countdownReady=true;number.textContent='GO!';playTone(880,.22,'triangle');render();setTimeout(()=>{overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');render()},650)}},850)}
+function announceBattle(p,streak){const el=$('announcement');el.className='announcement show '+(p===1?'red-ann':'yellow-ann')+(streak>=2?' streak-ann':'');$('announcementTitle').textContent=streak>=4?'UNSTOPPABLE!':streak===3?'ON FIRE!':streak===2?name(p)+' IS HOT!':name(p)+' WINS!';$('announcementSub').textContent=streak>=2?streak+' BATTLES IN A ROW · ONE DROP EARNED':'ONE DROP EARNED';playTone(p===1?660:520,.22,'triangle');if(streak>=2){playTone(880,.12,'triangle');setTimeout(()=>playTone(1100,.16,'triangle'),130)}setTimeout(()=>{el.className='announcement'},streak>=2?3000:1050)}
+function playVictoryMusic(){if(!musicEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();const ctx=audioContext;const melody=[659.25,783.99,987.77,783.99,880,1046.5,1174.66,1318.51,1567.98];const lengths=[.18,.18,.22,.18,.2,.22,.22,.28,.55];const schedule=()=>{if(!musicEnabled||ctx.state!=='running')return;let at=ctx.currentTime+.06;melody.forEach((freq,i)=>{const duration=lengths[i],osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(freq,at);gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(.105,at+.025);gain.gain.setValueAtTime(.105,at+Math.max(.04,duration-.055));gain.gain.exponentialRampToValueAtTime(.0001,at+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(at);osc.stop(at+duration+.015);at+=duration*.88})};if(ctx.state==='running')schedule();else ctx.resume().then(schedule).catch(()=>{});}catch(e){console.warn('Victory music unavailable',e)}}
+function celebrate(p){const overlay=$('victoryOverlay');overlay.className='victory-overlay show '+(p===1?'victory-red':'victory-yellow');$('victoryTitle').textContent=name(p)+' WINS!';const battleWins=[battleLog.filter(e=>e.player===1).length,battleLog.filter(e=>e.player===2).length];$('victoryStats').innerHTML='<div class="victory-stat"><b>'+battleCount+'</b><span>Total battles</span></div><div class="victory-stat"><b>'+battleWins[0]+' – '+battleWins[1]+'</b><span>Battle wins · R–Y</span></div><div class="victory-stat"><b>'+scores[0]+' – '+scores[1]+'</b><span>Match score · R–Y</span></div><div class="victory-stat"><b>'+roundDrops[0]+' – '+roundDrops[1]+'</b><span>Final round drops</span></div><div class="victory-stat"><b>'+bestStreak+'</b><span>Longest battle streak</span></div><div class="victory-stat"><b>'+(p===1?roundDrops[0]:roundDrops[1])+'</b><span>Winner drops this round</span></div>';$('victoryNext').focus({preventScroll:true});playTone(660,.18,'triangle');playVictoryMusic();for(let j=0;j<100;j++){const bit=document.createElement('i');bit.className='confetti';bit.style.left=(Math.random()*100)+'vw';bit.style.background=['#ff5268','#ffd34e','#587dff','#ffffff','#6ee7b7','#e879f9'][j%6];bit.style.animationDelay=(Math.random()*.55)+'s';bit.style.transform='rotate('+Math.random()*360+'deg)';document.body.append(bit);setTimeout(()=>bit.remove(),3300)}}
+function saveGame(){if(restoring)return;try{const data={version:1,grid,current,winner,winningCells,scores,history,roundStarter,battleReady,battleWinnerSelected,dropRequests,opponentHandles,requestSources,battleCount,streakPlayer,streakCount,bestStreak,battleLog,roundBattleCount,roundDrops,effectsEnabled,musicEnabled,countdownReady,countdownActive,countdownNumber,pendingSnapshot,paused,savedAt:Date.now(),name1:$('name1').value,name2:$('name2').value};localStorage.setItem('battleConnect4Save',JSON.stringify(data));storageHealthy=true;lastSavedAt=data.savedAt;if(syncChannel)syncChannel.postMessage(data)}catch(e){storageHealthy=false;console.warn('Could not save game state',e)}}
+function loadSavedGame(){try{const raw=localStorage.getItem('battleConnect4Save');if(!raw)return;const d=JSON.parse(raw);if(!d||d.version!==1||!Array.isArray(d.grid)||d.grid.length!==ROWS||!d.grid.every(row=>Array.isArray(row)&&row.length===COLS))return;restoring=true;grid=d.grid;current=d.current===2?2:1;winner=[0,1,2,3].includes(d.winner)?d.winner:0;winningCells=Array.isArray(d.winningCells)?d.winningCells:[];scores=Array.isArray(d.scores)&&d.scores.length===2?d.scores:[0,0];history=Array.isArray(d.history)?d.history:[];roundStarter=d.roundStarter===2?2:1;battleReady=!!d.battleReady;battleWinnerSelected=!!d.battleWinnerSelected;dropRequests=Array.isArray(d.dropRequests)&&d.dropRequests.length===2?d.dropRequests.map(v=>Number(v)>=1&&Number(v)<=7?Number(v):0):[0,0];opponentHandles=Array.isArray(d.opponentHandles)&&d.opponentHandles.length===2?d.opponentHandles.map(v=>String(v||'')):['',''];requestSources=Array.isArray(d.requestSources)&&d.requestSources.length===2?d.requestSources.map(v=>String(v||'')):['',''];battleCount=Number(d.battleCount)||0;streakPlayer=d.streakPlayer===1||d.streakPlayer===2?d.streakPlayer:0;streakCount=Number(d.streakCount)||0;bestStreak=Number(d.bestStreak)||0;battleLog=Array.isArray(d.battleLog)?d.battleLog:[];roundBattleCount=Number(d.roundBattleCount)||0;roundDrops=Array.isArray(d.roundDrops)&&d.roundDrops.length===2?d.roundDrops:[0,0];effectsEnabled=d.effectsEnabled!==false;musicEnabled=d.musicEnabled!==false;countdownReady=!!d.countdownReady;countdownActive=!!d.countdownActive;countdownNumber=Number(d.countdownNumber)||0;pendingSnapshot=d.pendingSnapshot||null;paused=!!d.paused;lastSavedAt=Number(d.savedAt)||0;recoveredGame=true;$('name1').value=typeof d.name1==='string'?d.name1:'RED TEAM';$('name2').value=typeof d.name2==='string'?d.name2:'YELLOW TEAM';countdownActive=false; }catch(e){console.warn('Could not restore saved game',e)}finally{restoring=false}}
+function render(){
+ const board=$('board'),cols=$('columns');board.innerHTML='';cols.innerHTML='';
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+  const cell=document.createElement('div');cell.className='cell';
+  if(grid[r][c]){const piece=document.createElement('div');piece.className='piece '+(grid[r][c]===1?'red':'yellow')+(winningCells.some(([wr,wc])=>wr===r&&wc===c)?' winning':'');cell.append(piece)}
+  board.append(cell);
+ }
+ board.dataset.previewTeam=String(current);board.onmouseleave=()=>{delete board.dataset.preview};for(let c=0;c<COLS;c++){const b=document.createElement('button');b.className='drop';b.textContent=(c+1)+' ↓';if(dropRequests.includes(c+1))b.classList.add('requested');b.title='Preview column '+(c+1)+' · drop here';b.setAttribute('aria-label','Preview and drop in column '+(c+1));b.disabled=paused||!!winner||!battleWinnerSelected||grid[0][c]!==0;b.addEventListener('mouseenter',()=>{if(!b.disabled)board.dataset.preview=String(c+1)});b.addEventListener('focus',()=>{if(!b.disabled)board.dataset.preview=String(c+1)});b.addEventListener('mouseleave',()=>{if(board.dataset.preview===String(c+1))delete board.dataset.preview});b.addEventListener('blur',()=>{if(board.dataset.preview===String(c+1))delete board.dataset.preview});b.addEventListener('click',()=>play(c));cols.append(b)}
+ $('score1').textContent=scores[0];$('score2').textContent=scores[1];
+ const redBattleWins=battleLog.filter(entry=>entry.player===1).length,yellowBattleWins=battleLog.filter(entry=>entry.player===2).length;
+ $('battleWins1').textContent=redBattleWins;$('battleWins2').textContent=yellowBattleWins;$('battleName1').textContent=name(1)+' · BATTLE WINS';$('battleName2').textContent=name(2)+' · BATTLE WINS';
+ const banner=$('battleResultBanner');banner.className='battle-result-banner';
+ if(winner===1||winner===2)banner.textContent='🏆 '+name(winner)+' WON THE MATCH!';
+ else if(winner===3)banner.textContent='🤝 MATCH DRAW · START A NEW ROUND';
+ else if(battleWinnerSelected){banner.textContent='⚔️ BATTLE '+battleCount+' · '+name(current)+' WON · 1 DROP EARNED';banner.classList.add(current===1?'red-result':'yellow-result')}
+ else if(!battleReady)banner.textContent='✅ BATTLE '+battleCount+' · DROP COMPLETED · NEXT BATTLE REQUIRED';
+ else if(countdownActive)banner.textContent='⏳ BATTLE '+(battleCount+1)+' · COUNTDOWN';
+ else if(countdownReady)banner.textContent='🎯 BATTLE '+(battleCount+1)+' · WAITING FOR WINNER';
+ else banner.textContent='⚔️ BATTLE '+(battleCount+1)+' · READY TO START';
+ $('battleCount').textContent=battleCount;$('streakCount').textContent=streakCount;$('bestStreak').textContent=bestStreak;
+ const historyList=$('historyList');historyList.innerHTML='';
+ $('historySummary').textContent=battleLog.length?battleLog.length+' battle'+(battleLog.length===1?'':'s'):'No battles yet';
+ if(!battleLog.length){const empty=document.createElement('li');empty.className='history-empty';empty.textContent='Battle results will appear here';historyList.append(empty)}
+ else{battleLog.slice(-8).reverse().forEach(entry=>{const item=document.createElement('li');item.className='history-item';const number=document.createElement('span');number.className='history-number';number.textContent='BATTLE '+entry.number;const who=document.createElement('span');who.className='history-winner '+(entry.player===1?'red-text':'yellow-text');who.textContent=name(entry.player)+' WON';const drop=document.createElement('span');drop.className='history-drop';drop.textContent=entry.column?'Column '+entry.column:'Drop pending';item.append(number,who,drop);historyList.append(item)})}
+ $('streakCount').className=streakPlayer===1?'streak-red':streakPlayer===2?'streak-yellow':'';
+ $('streakLabel').textContent=streakPlayer?(name(streakPlayer)+' streak'):'Current streak';$('requestRedCol').value=String(dropRequests[0]);$('requestYellowCol').value=String(dropRequests[1]);$('trustedRed').value=opponentHandles[0];$('trustedYellow').value=opponentHandles[1];$('redRequestLabel').textContent=dropRequests[0]?'Verified '+requestSources[0]+' · Column '+dropRequests[0]:'No verified request';$('yellowRequestLabel').textContent=dropRequests[1]?'Verified '+requestSources[1]+' · Column '+dropRequests[1]:'No verified request';
+ $('soundToggle').textContent=effectsEnabled?'🔊 Effects on':'🔇 Effects off';$('soundToggle').setAttribute('aria-pressed',String(!effectsEnabled));$('musicToggle').textContent=musicEnabled?'🎵 Victory music on':'🎵 Victory music off';$('musicToggle').setAttribute('aria-pressed',String(!musicEnabled));
+ $('startBattle').disabled=paused||!!winner||!battleReady||battleWinnerSelected||countdownReady||countdownActive;$('startBattle').textContent=countdownActive?'Battle starting…':countdownReady?'Battle ready ✓':'Start battle · 3-2-1';$('nextBattle').textContent=countdownActive?'Battle starting…':'Next battle · 3-2-1';
+ $('spectatorPhase').textContent=winner?'ROUND FINISHED':countdownActive?'BATTLE COUNTDOWN':countdownReady?'BATTLE RESULT NEEDED':battleWinnerSelected?'DROP THE WINNER’S PIECE':battleReady?'READY FOR NEXT BATTLE':'WAITING FOR NEXT BATTLE';$('spectatorNext').textContent=winner?'Next round':battleWinnerSelected?'Drop 1 piece in any column':countdownReady?'Winner earns exactly 1 drop':'Next drop: waiting for battle result';$('spectatorStreak').textContent=streakPlayer?name(streakPlayer)+' · '+streakCount+' in a row':'No streak yet';
+ $('player1').classList.toggle('active',!winner&&current===1);$('player2').classList.toggle('active',!winner&&current===2);
+ $('turnDot').style.background=current===1?'var(--red)':'var(--yellow)';
+ if(paused){$('statusText').innerHTML='⏸ GAME PAUSED<small>Resume from the operator panel to continue.</small>'}
+ else if(winner===1||winner===2){$('statusText').innerHTML=name(winner)+' WINS!<small>Four in a row. Start a new round when ready.</small>'}
+ else if(winner===3){$('statusText').innerHTML='IT’S A DRAW<small>Every space is filled. Start another round.</small>'}
+ else if(!battleReady) $('statusText').innerHTML='Piece dropped!<small>Start the next battle before choosing another winner.</small>';
+ else if(!countdownReady&&!battleWinnerSelected) $('statusText').innerHTML='Ready to start the battle<small>Start the 3-second countdown before recording its winner.</small>';
+ else if(!battleWinnerSelected) $('statusText').innerHTML='Waiting for battle result<small>Select the winner, then award exactly one drop.</small>';
+ else $('statusText').innerHTML=name(current)+' won the battle<small>Choose one column to drop this battle’s single piece.</small>';
+ $('winnerPanel').classList.toggle('show',!!winner);
+ $('winnerTitle').textContent=winner===3?'IT’S A DRAW':winner?name(winner)+' TAKES THE ROUND!':'';
+ $('winnerNote').textContent=winner===1||winner===2?'Winner gets the first move next round and chooses the opening column.':'';
+ $('newRound').textContent=winner?'Next round':'Restart round';
+ $('undo').disabled=paused||history.length===0;$('newRound').disabled=paused;$('reset').disabled=paused;$('pauseGame').textContent=paused?'▶ Resume game':'⏸ Pause game';$('pauseGame').classList.toggle('primary',paused);$('operatorHealth').textContent=(storageHealthy?'💾 Saved locally':'⚠️ Local save unavailable')+' · '+(lastSavedAt?'Last save '+new Date(lastSavedAt).toLocaleTimeString():'Waiting for first save')+' · '+(isStreamOnline()?'🟢 Stream display connected':'🟠 Stream display not detected')+(paused?' · GAME PAUSED':'')+(battleWinnerSelected&&dropRequests[current-1]?' · SUGGESTED COLUMN '+dropRequests[current-1]+(grid[0][dropRequests[current-1]-1]!==0?' IS FULL — PICK ANOTHER':''):'');
+ $('redWon').disabled=paused||!!winner||!battleReady||battleWinnerSelected||!countdownReady;
+ $('yellowWon').disabled=paused||!!winner||!battleReady||battleWinnerSelected||!countdownReady;
+ $('nextBattle').disabled=paused||!!winner||battleReady||battleWinnerSelected;
+ saveGame();
+}
+function getLine(r,c,p,dr,dc){let line=[[r,c]];for(const sign of [-1,1]){let rr=r+dr*sign,cc=c+dc*sign;while(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS&&grid[rr][cc]===p){line.push([rr,cc]);rr+=dr*sign;cc+=dc*sign}}return line}
+function play(c){
+ if(paused||winner||!battleWinnerSelected)return;if(grid[0][c]!==0){alert('Column '+(c+1)+' is full. Choose another column.');return}if(!confirm(name(current)+' earned one drop. Confirm dropping in column '+(c+1)+'?'))return;
+ let r=ROWS-1;while(r>=0&&grid[r][c]!==0)r--;if(r<0)return;
+ history.push({r,c,p:current,battleReady,battleWinnerSelected,countdownReady,dropRequests:[...dropRequests],streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount,battleLogLength:pendingSnapshot?.battleLogLength??battleLog.length,roundBattleCount:pendingSnapshot?.roundBattleCount??roundBattleCount,roundDrops:pendingSnapshot?.roundDrops?[...pendingSnapshot.roundDrops]:[...roundDrops]});if(battleLog.length)battleLog[battleLog.length-1].column=c+1;grid[r][c]=current;roundDrops[current-1]++;dropRequests[current-1]=0;battleReady=false;battleWinnerSelected=false;countdownReady=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
+ let lines=[[0,1],[1,0],[1,1],[1,-1]].map(([dr,dc])=>getLine(r,c,current,dr,dc));
+ let line=lines.find(x=>x.length>=4);
+ if(line){winner=current;winningCells=line;scores[current-1]++;roundStarter=current;setTimeout(()=>celebrate(current),220)}
+ else if(grid.every(row=>row.every(Boolean)))winner=3;
+ 
+ render();
+}
+function selectBattleWinner(p){if(paused||winner||!battleReady||battleWinnerSelected||!countdownReady)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount,battleLogLength:battleLog.length,roundBattleCount,roundDrops:[...roundDrops]};current=p;battleWinnerSelected=true;countdownReady=false;battleCount++;roundBattleCount++;battleLog.push({number:battleCount,player:p,column:null});if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p,streakCount);render()}
+function startRound(){if(paused)return;if(countdownTimer)clearInterval(countdownTimer);countdownActive=false;countdownNumber=0;countdownReady=false;$('countdownOverlay').classList.remove('show');$('victoryOverlay').className='victory-overlay';grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];roundBattleCount=0;roundDrops=[0,0];dropRequests=[0,0];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;pendingSnapshot=null;render()}
+$('pauseGame').addEventListener('click',()=>{paused=!paused;if(paused&&countdownTimer){clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;countdownNumber=0;countdownReady=false;$('countdownOverlay').classList.remove('show');$('countdownOverlay').setAttribute('aria-hidden','true')}render()});
+$('newRound').addEventListener('click',()=>{if(!paused&&(winner||confirm('Start a new round? The current board will be cleared.')))startRound()});
+$('victoryNext').addEventListener('click',startRound);
+function undoLastDrop(){if(paused||!history.length)return;if(!confirm('Undo the last drop and restore the previous battle result?'))return;$('victoryOverlay').className='victory-overlay';const last=history.pop();battleLog.length=last.battleLogLength;grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;countdownReady=last.countdownReady;streakPlayer=last.streakPlayer;streakCount=last.streakCount;bestStreak=last.bestStreak;battleCount=last.battleCount;roundBattleCount=last.roundBattleCount;roundDrops=[...last.roundDrops];dropRequests=Array.isArray(last.dropRequests)?[...last.dropRequests]:[0,0];pendingSnapshot=null;render()}
+$('undo').addEventListener('click',undoLastDrop);
+function cleanTikTokHandle(v){return String(v||'').trim().replace(/^@+/,'').toLowerCase()}function saveDropRequest(p){const suffix=p===1?'Red':'Yellow',idx=p-1,allowed=cleanTikTokHandle($('trusted'+suffix).value),commenter=cleanTikTokHandle($('commenter'+suffix).value),value=Number($('request'+suffix+'Col').value);opponentHandles[idx]=$('trusted'+suffix).value.trim();if(!allowed){alert('Enter the opponent TikTok username first.');return}if(!commenter||commenter!==allowed){alert('Request rejected. The chat username does not match the registered opponent.');return}if(!(value>=1&&value<=7)){alert('Choose a column from 1 to 7.');return}if(grid[0][value-1]!==0){const warning='COLUMN '+value+' IS FULL. Please ask '+name(p)+' to request a different column.';alert(warning);const label=$(''+(p===1?'redRequestLabel':'yellowRequestLabel'));if(label)label.textContent='⚠️ '+warning;return}requestSources[idx]='@'+allowed;dropRequests[idx]=value;saveGame();render();$('commenter'+suffix).value=''}$('trustedRed').addEventListener('change',()=>{opponentHandles[0]=$('trustedRed').value.trim();dropRequests[0]=0;requestSources[0]='';saveGame();render()});$('trustedYellow').addEventListener('change',()=>{opponentHandles[1]=$('trustedYellow').value.trim();dropRequests[1]=0;requestSources[1]='';saveGame();render()});$('setRedRequest').addEventListener('click',()=>saveDropRequest(1));$('setYellowRequest').addEventListener('click',()=>saveDropRequest(2));$('clearRedRequest').addEventListener('click',()=>{dropRequests[0]=0;requestSources[0]='';saveGame();render()});$('clearYellowRequest').addEventListener('click',()=>{dropRequests[1]=0;requestSources[1]='';saveGame();render()});$('redWon').addEventListener('click',()=>selectBattleWinner(1));
+$('yellowWon').addEventListener('click',()=>selectBattleWinner(2));
+function startNextBattle(){if(paused||winner||battleReady||battleWinnerSelected||countdownActive)return;battleReady=true;countdownReady=false;render();startBattleCountdown()}
+$('nextBattle').addEventListener('click',startNextBattle);
+$('startBattle').addEventListener('click',startBattleCountdown);
+
+$('clearAllRequests').addEventListener('click',()=>{dropRequests=[0,0];requestSources=['',''];saveGame();render()});
+$('restartCountdown').addEventListener('click',()=>{if(paused||winner||!battleReady||battleWinnerSelected){alert('Countdown can only be restarted before a battle winner is recorded.');return}if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}countdownActive=false;countdownNumber=0;countdownReady=false;$('countdownOverlay').classList.remove('show');$('countdownOverlay').setAttribute('aria-hidden','true');render();startBattleCountdown()});
+$('readyNextBattle').addEventListener('click',()=>{if(paused||winner||battleReady||battleWinnerSelected){alert('This shortcut is available after a piece has been dropped and before the next battle.');return}startNextBattle()});
+$('reset').addEventListener('click',()=>{if(paused||!confirm('Reset all scores, battle history and the current board? This cannot be undone.'))return;scores=[0,0];battleLog=[];roundStarter=1;battleCount=0;streakPlayer=0;streakCount=0;bestStreak=0;pendingSnapshot=null;startRound()});
+$('soundToggle').addEventListener('click',()=>{effectsEnabled=!effectsEnabled;if(effectsEnabled)playTone(600,.1);render()});$('musicToggle').addEventListener('click',()=>{musicEnabled=!musicEnabled;if(musicEnabled)playTone(740,.12,'triangle','music');render()});
+document.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;const target=e.target;if(target&&(target.tagName==='INPUT'||target.tagName==='TEXTAREA'||target.isContentEditable))return;const key=e.key.toLowerCase();if(key==='r'){selectBattleWinner(1);e.preventDefault()}else if(key==='y'){selectBattleWinner(2);e.preventDefault()}else if(key==='u'){undoLastDrop();e.preventDefault()}else if(key==='n'){startNextBattle();e.preventDefault()}else if(/^[1-7]$/.test(key)){play(Number(key)-1);e.preventDefault()}});
+
+$('name1').addEventListener('input',render);$('name2').addEventListener('input',render);
+function updateOperatorHealth(){publishOperatorHeartbeat();const el=$('operatorHealth');if(!el)return;const online=isStreamOnline();el.textContent=(storageHealthy?'💾 Saved locally':'⚠️ Local save unavailable')+' · '+(lastSavedAt?'Last save '+new Date(lastSavedAt).toLocaleTimeString():'Waiting for first save')+' · '+(online?'🟢 Stream display connected':'🟠 Stream display not detected')+(paused?' · GAME PAUSED':'')+(battleWinnerSelected&&dropRequests[current-1]?' · SUGGESTED COLUMN '+dropRequests[current-1]+(grid[0][dropRequests[current-1]-1]!==0?' IS FULL — PICK ANOTHER':''):'')}
+loadSavedGame();render();if(recoveredGame){const notice=$('recoveryNotice');notice.hidden=false;notice.textContent='↩️ GAME RECOVERED · Your board, scores, requests and battle history were restored from '+(lastSavedAt?new Date(lastSavedAt).toLocaleString():'your last save')+'.'}publishOperatorHeartbeat();setInterval(updateOperatorHealth,2000);
+})();
+</script>
+<script>
+(()=> {
+ const canvas=document.getElementById('smokeCanvas');
+ if(!canvas)return;
+ const ctx=canvas.getContext('2d',{alpha:true});
+ if(!ctx)return;
+ let w=0,h=0,dpr=1,last=0,clock=0,smoke=[];
+ const tones=[[37,112,255],[44,89,235],[91,49,220],[132,43,225],[178,35,205],[92,54,190],[37,145,255]];
+ let seed=9381;
+ const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ const fog=[
+  {x:0,y:.34,speed:15,phase:0,color:[28,105,255],alpha:.39,scale:1.15},
+  {x:.5,y:.68,speed:-11,phase:2.1,color:[132,42,235],alpha:.36,scale:1.35},
+  {x:1,y:.48,speed:19,phase:4.2,color:[190,38,218],alpha:.36,scale:1.2},
+  {x:.2,y:.88,speed:-17,phase:1.3,color:[57,75,230],alpha:.34,scale:1.45}
+ ];
+ function spawn(initial=false){
+  const edge=rand();
+  const x=edge<.22?w*(.02+rand()*.24):edge<.44?w*(.74+rand()*.24):w*(.08+rand()*.84);
+  const life=9+rand()*8, scale=.75+rand()*.9;
+  return {x,y:initial?h*(.05+rand()*1.1):h+80+rand()*100,age:initial?rand()*life:0,life,
+   size:(85+rand()*115)*Math.min(1.2,w/390)*scale,
+   vx:(rand()-.5)*24,vy:-(19+rand()*27),phase:rand()*6.28,
+   sway:18+rand()*55,turn:(rand()-.5)*.7,tone:tones[Math.floor(rand()*tones.length)],
+   alpha:.25+rand()*.16,seed:rand()*1000};
+ }
+ function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,1.5);w=innerWidth;h=innerHeight;
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);smoke=[];
+  for(let i=0;i<62;i++)smoke.push(spawn(true));
+ }
+ function puff(x,y,rx,ry,color,alpha,rot){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(1,ry/rx);
+  const g=ctx.createRadialGradient(-rx*.16,-rx*.12,rx*.025,0,0,rx);
+  g.addColorStop(0,'rgba('+color.join(',')+','+(alpha*.95)+')');
+  g.addColorStop(.2,'rgba('+color.join(',')+','+(alpha*.76)+')');
+  g.addColorStop(.46,'rgba('+color.join(',')+','+(alpha*.4)+')');
+  g.addColorStop(.76,'rgba('+color.join(',')+','+(alpha*.13)+')');
+  g.addColorStop(1,'rgba('+color.join(',')+',0)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();ctx.restore();
+ }
+ function renderFog(){
+  // Broad translucent sheets drift sideways behind the finer rising smoke.
+  ctx.filter='blur(34px)';
+  for(let i=0;i<fog.length;i++){
+   const f=fog[i], drift=Math.sin(clock*.18+f.phase)*w*.12;
+   const x=((f.x*w+clock*f.speed+drift)%(w*1.8)+w*1.8)%(w*1.8)-w*.4;
+   const y=h*f.y+Math.sin(clock*.24+f.phase)*h*.055;
+   const r=w*.78*f.scale;
+   puff(x,y,r,r*.36,f.color,f.alpha,Math.sin(clock*.13+f.phase)*.12);
+   puff(x+r*.48,y-h*.07,r*.64,r*.3,f.color,f.alpha*.72,-.14);
+   puff(x-r*.48,y+h*.06,r*.62,r*.32,f.color,f.alpha*.7,.13);
+  }
+  ctx.filter='none';
+ }
+ function render(p){
+  const q=p.age/p.life;
+  const fade=Math.min(1,p.age/1.0,Math.max(0,(1-q)*2.8));
+  const turbulence=Math.sin(clock*.42+p.phase+p.age*.48);
+  const x=p.x+Math.sin(clock*.34+p.phase)*p.sway+turbulence*16,y=p.y;
+  const grow=.5+q*1.28,r=p.size*grow,a=p.alpha*fade,col=p.tone;
+  ctx.filter='blur(19px)';
+  puff(x,y,r*1.3,r*.95,col,a*.8,p.turn);
+  puff(x-r*.52,y-r*.14,r*.86,r*.76,col,a*.86,p.turn-.38);
+  puff(x+r*.48,y-r*.22,r*.94,r*.8,col,a*.82,p.turn+.32);
+  puff(x-r*.18,y-r*.62,r*.74,r*.9,col,a*.7,p.turn-.18);
+  puff(x+r*.32,y-r*.7,r*.68,r*.92,col,a*.66,p.turn+.24);
+  puff(x+r*.03,y+r*.36,r,r*.7,col,a*.54,p.turn+.1);
+  ctx.filter='blur(8px)';
+  for(let k=0;k<5;k++){
+   const ang=Math.PI*2*k/5+p.phase;
+   const ox=Math.cos(ang)*r*(.52+.08*Math.sin(clock*.8+k+p.seed));
+   const oy=Math.sin(ang)*r*.48;
+   puff(x+ox,y+oy,r*(.3+.08*Math.sin(k*2+p.seed)),r*(.36+.07*Math.cos(k+p.seed)),col,a*.42,p.turn+ang*.2);
+  }
+  ctx.filter='blur(3.5px)';
+  for(let k=0;k<3;k++){
+   const side=k-1,sx=x+side*r*.28,sy=y-r*.5;
+   const curl=Math.sin(clock*.75+p.phase+k*1.7)*r*.42,rise=r*(1.3+k*.25);
+   const grad=ctx.createLinearGradient(sx,sy,sx+curl,sy-rise);
+   grad.addColorStop(0,'rgba('+col.join(',')+','+(a*.65)+')');
+   grad.addColorStop(.38,'rgba('+col.join(',')+','+(a*.28)+')');
+   grad.addColorStop(1,'rgba('+col.join(',')+',0)');
+   ctx.strokeStyle=grad;ctx.lineWidth=4+k*2.5;ctx.lineCap='round';
+   ctx.beginPath();ctx.moveTo(sx,sy);
+   ctx.bezierCurveTo(sx-side*r*.65,sy-rise*.32,sx+curl+side*r*.45,sy-rise*.72,sx+curl,sy-rise);
+   ctx.stroke();
+  }
+  ctx.filter='none';
+ }
+ function draw(t){
+  if(t-last<28){requestAnimationFrame(draw);return}
+  const dt=Math.min((t-last)/1000,.045);last=t;clock+=dt;
+  ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='source-over';
+  renderFog();
+  for(let i=smoke.length-1;i>=0;i--){
+   const p=smoke[i];p.age+=dt;
+   p.x+=(p.vx+Math.sin(clock*.32+p.phase)*7)*dt;p.y+=p.vy*dt;
+   p.vx+=Math.sin(clock*.23+p.phase)*.55*dt;
+   if(p.age>=p.life||p.y < -p.size*5){smoke.splice(i,1);continue}
+   render(p);
+  }
+  while(smoke.length<62)smoke.push(spawn(false));
+  ctx.globalCompositeOperation='source-over';ctx.filter='none';
+  requestAnimationFrame(draw);
+ }
+ resize();window.addEventListener('resize',resize,{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)last=0});
+ requestAnimationFrame(draw);
+})();
+</script>
+</body></html>
