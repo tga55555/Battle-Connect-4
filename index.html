@@ -181,7 +181,7 @@ function getLine(r,c,p,dr,dc){let line=[[r,c]];for(const sign of [-1,1]){let rr=
 function play(c){
  if(winner||!battleWinnerSelected||grid[0][c]!==0)return;
  let r=ROWS-1;while(r>=0&&grid[r][c]!==0)r--;if(r<0)return;
- history.push({r,c,p:current,battleReady,battleWinnerSelected,streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount,battleLogLength:battleLog.length});if(battleLog.length)battleLog[battleLog.length-1].column=c+1;grid[r][c]=current;battleReady=false;battleWinnerSelected=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
+ history.push({r,c,p:current,battleReady,battleWinnerSelected,streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount,battleLogLength:pendingSnapshot?.battleLogLength??battleLog.length});if(battleLog.length)battleLog[battleLog.length-1].column=c+1;grid[r][c]=current;battleReady=false;battleWinnerSelected=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
  let lines=[[0,1],[1,0],[1,1],[1,-1]].map(([dr,dc])=>getLine(r,c,current,dr,dc));
  let line=lines.find(x=>x.length>=4);
  if(line){winner=current;winningCells=line;scores[current-1]++;roundStarter=current;setTimeout(()=>celebrate(current),220)}
@@ -189,7 +189,7 @@ function play(c){
  
  render();
 }
-function selectBattleWinner(p){if(winner||!battleReady||battleWinnerSelected)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount};current=p;battleWinnerSelected=true;battleCount++;battleLog.push({number:battleCount,player:p,column:null});if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p);render()}
+function selectBattleWinner(p){if(winner||!battleReady||battleWinnerSelected)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount,battleLogLength:battleLog.length};current=p;battleWinnerSelected=true;battleCount++;battleLog.push({number:battleCount,player:p,column:null});if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p);render()}
 function startRound(){$('victoryOverlay').className='victory-overlay';grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;pendingSnapshot=null;render()}
 $('newRound').addEventListener('click',startRound);
 $('victoryNext').addEventListener('click',startRound);
