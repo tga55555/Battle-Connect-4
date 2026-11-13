@@ -225,7 +225,7 @@ function render(){
  $('winnerTitle').textContent=winner===3?'IT’S A DRAW':winner?name(winner)+' TAKES THE ROUND!':'';
  $('winnerNote').textContent=winner===1||winner===2?'Winner gets the first move next round and chooses the opening column.':'';
  $('newRound').textContent=winner?'Next round':'Restart round';
- $('undo').disabled=paused||history.length===0;$('newRound').disabled=paused;$('reset').disabled=paused;$('pauseGame').textContent=paused?'▶ Resume game':'⏸ Pause game';$('pauseGame').classList.toggle('primary',paused);$('operatorHealth').textContent=(storageHealthy?'💾 Saved locally':'⚠️ Local save unavailable')+' · '+(lastSavedAt?'Last save '+new Date(lastSavedAt).toLocaleTimeString():'Waiting for first save')+' · '+(Date.now()-(Number(localStorage.getItem('battleConnect4StreamHeartbeat'))||0)<9000?'🟢 Stream display connected':'🟠 Stream display not detected')+(paused?' · GAME PAUSED':'');
+ $('undo').disabled=paused||history.length===0;$('newRound').disabled=paused;$('reset').disabled=paused;$('pauseGame').textContent=paused?'▶ Resume game':'⏸ Pause game';$('pauseGame').classList.toggle('primary',paused);$('operatorHealth').textContent=(storageHealthy?'💾 Saved locally':'⚠️ Local save unavailable')+' · '+(lastSavedAt?'Last save '+new Date(lastSavedAt).toLocaleTimeString():'Waiting for first save')+' · '+(Date.now()-(Number(localStorage.getItem('battleConnect4StreamHeartbeat'))||0)<9000?'🟢 Stream display connected':'🟠 Stream display not detected')+(paused?' · GAME PAUSED':'')+(battleWinnerSelected&&dropRequests[current-1]?' · SUGGESTED COLUMN '+dropRequests[current-1]+(grid[0][dropRequests[current-1]-1]!==0?' IS FULL — PICK ANOTHER':''):'');
  $('redWon').disabled=paused||!!winner||!battleReady||battleWinnerSelected||!countdownReady;
  $('yellowWon').disabled=paused||!!winner||!battleReady||battleWinnerSelected||!countdownReady;
  $('nextBattle').disabled=paused||!!winner||battleReady||battleWinnerSelected;
@@ -260,7 +260,8 @@ $('soundToggle').addEventListener('click',()=>{effectsEnabled=!effectsEnabled;if
 document.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;const target=e.target;if(target&&(target.tagName==='INPUT'||target.tagName==='TEXTAREA'||target.isContentEditable))return;const key=e.key.toLowerCase();if(key==='r'){selectBattleWinner(1);e.preventDefault()}else if(key==='y'){selectBattleWinner(2);e.preventDefault()}else if(key==='u'){undoLastDrop();e.preventDefault()}else if(key==='n'){startNextBattle();e.preventDefault()}else if(/^[1-7]$/.test(key)){play(Number(key)-1);e.preventDefault()}});
 
 $('name1').addEventListener('input',render);$('name2').addEventListener('input',render);
-loadSavedGame();render();
+function updateOperatorHealth(){const el=$('operatorHealth');if(!el)return;const online=Date.now()-(Number(localStorage.getItem('battleConnect4StreamHeartbeat'))||0)<9000;el.textContent=(storageHealthy?'💾 Saved locally':'⚠️ Local save unavailable')+' · '+(lastSavedAt?'Last save '+new Date(lastSavedAt).toLocaleTimeString():'Waiting for first save')+' · '+(online?'🟢 Stream display connected':'🟠 Stream display not detected')+(paused?' · GAME PAUSED':'')+(battleWinnerSelected&&dropRequests[current-1]?' · SUGGESTED COLUMN '+dropRequests[current-1]+(grid[0][dropRequests[current-1]-1]!==0?' IS FULL — PICK ANOTHER':''):'')}
+loadSavedGame();render();setInterval(updateOperatorHealth,2000);
 })();
 </script>
 </body></html>
