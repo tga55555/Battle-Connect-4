@@ -60,6 +60,41 @@ header .sub{margin-top:20px}
 /* KEEP SUBTITLE CLEAR OF THE TITLE'S PURPLE GLOW */
 header .sub{margin-top:34px;position:relative;z-index:1}
 
+/* SMOKE AFTER DARK ARCADE VISUAL OVERHAUL */
+body:before,body:after{content:"";position:fixed;inset:-18%;pointer-events:none;z-index:0}
+body:before{background:radial-gradient(ellipse at 12% 22%,#a855f755 0,transparent 34%),radial-gradient(ellipse at 88% 30%,#ec489955 0,transparent 32%),radial-gradient(ellipse at 52% 95%,#2563eb44 0,transparent 38%);filter:blur(42px);animation:smokeDrift 22s ease-in-out infinite alternate}
+body:after{opacity:.42;background-image:radial-gradient(circle,#fff 0 1px,transparent 1.8px),radial-gradient(circle,#f9a8d4 0 1px,transparent 2px),radial-gradient(circle,#c4b5fd 0 1px,transparent 2px);background-size:113px 137px,173px 191px,229px 167px;background-position:0 0,42px 66px,95px 22px;animation:sparkDrift 34s linear infinite}
+.shell{position:relative;z-index:1}
+@keyframes smokeDrift{0%{transform:translate3d(-2%,1%,0) scale(1)}50%{transform:translate3d(2%,-2%,0) scale(1.07)}100%{transform:translate3d(-1%,2%,0) scale(1.02)}}
+@keyframes sparkDrift{to{background-position:113px -137px,-131px 257px,324px -145px}}
+.board-wrap{border:2px solid #c4a5ff;background:linear-gradient(145deg,#3b2363,#172b55 62%,#111a3b);box-shadow:inset 0 2px 0 #ffffff22,0 0 0 4px #291642,0 0 35px #9d5bff77,0 18px 42px #0009}
+.board{border-color:#a5d4ff;background:linear-gradient(145deg,#315fa6,#28356f 60%,#192852);box-shadow:inset 0 0 0 2px #ffffff12,inset 0 0 28px #071333,0 8px 18px #070b20aa}
+.cell{transition:filter .2s ease,box-shadow .2s ease}
+.piece.red{box-shadow:inset 0 4px 7px #ffffff77,inset 0 -7px 10px #0005,0 0 12px #ff416b,0 0 25px #ff416b99,0 3px 6px #0008}
+.piece.yellow{box-shadow:inset 0 4px 7px #ffffff88,inset 0 -7px 10px #0005,0 0 12px #ffdc42,0 0 25px #ffdc4299,0 3px 6px #0008}
+.piece.red:after,.piece.yellow:after{content:"";display:block;width:38%;height:24%;margin:17% 0 0 18%;border-radius:50%;background:#ffffff70;filter:blur(2px)}
+.column-guide{transition:transform .2s ease,box-shadow .2s ease;position:relative;overflow:hidden}
+.column-guide:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent,#ffffff22,transparent);transform:translateX(-120%);animation:guideShine 4s ease-in-out infinite}
+.column-guide:nth-child(2):after{animation-delay:.25s}.column-guide:nth-child(3):after{animation-delay:.5s}.column-guide:nth-child(4):after{animation-delay:.75s}.column-guide:nth-child(5):after{animation-delay:1s}.column-guide:nth-child(6):after{animation-delay:1.25s}.column-guide:nth-child(7):after{animation-delay:1.5s}
+@keyframes guideShine{35%,100%{transform:translateX(120%)}}
+.column-guide.requested{animation:requestBeacon 1.6s ease-in-out infinite alternate}
+@keyframes requestBeacon{to{filter:brightness(1.35);box-shadow:0 0 22px #ffe27a99}}
+.battle-score-card{transition:transform .25s ease,box-shadow .25s ease}
+.battle-score-card strong{animation:scoreGlow 2.8s ease-in-out infinite alternate}
+@keyframes scoreGlow{to{text-shadow:0 0 17px currentColor,0 0 28px #ffffff33;transform:scale(1.045)}}
+.battle-result-banner{animation:bannerGlow 3s ease-in-out infinite alternate}
+@keyframes bannerGlow{to{box-shadow:0 0 25px #a56bff55,0 0 45px #ec489922}}
+.battle-pop{box-shadow:0 0 0 100vmax #080313a8,0 0 65px #d68affbb,0 0 100px #ff91c855}
+.battle-pop:before{content:"⚡  BATTLE RESULT  ⚡";display:block;margin-bottom:10px;color:#ffe6a0;font-size:11px;letter-spacing:.2em}
+.stream-countdown{background:radial-gradient(circle at 50% 45%,#46216dcc,#0b0820f2 66%);backdrop-filter:blur(10px)}
+.victory:before{content:"";position:absolute;inset:8%;border:1px solid #ffe27a55;border-radius:32px;box-shadow:0 0 55px #d68aff55,inset 0 0 55px #d68aff22;pointer-events:none;animation:victoryFrame 3s ease-in-out infinite alternate}
+.victory-card{box-shadow:0 0 0 6px #ffffff12,0 0 60px #d68affaa,0 0 100px #ff91c855,0 24px 80px #000c;animation:victoryCardPop .65s cubic-bezier(.18,.9,.25,1.2) both}
+@keyframes victoryCardPop{from{opacity:0;transform:scale(.78) rotate(-2deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes victoryFrame{to{transform:scale(1.025);opacity:.45}}
+.crown{filter:drop-shadow(0 0 18px #ffe27a);animation:crownBounce 1.4s ease-in-out infinite alternate}
+@keyframes crownBounce{to{transform:translateY(-7px) rotate(4deg)}}
+@media(prefers-reduced-motion:reduce){body:before,body:after,.column-guide:after,.column-guide.requested,.battle-result-banner,.battle-score-card strong,.victory:before,.crown{animation:none!important}}
+
 </style></head>
 <body><div class="shell">
 <header><div class="eyebrow">SMOKE AFTER DARK</div><div class="live-tag"><i class="live-dot"></i> LIVE GAME DISPLAY</div><h1>BATTLE <span>CONNECT 4</span></h1><p class="sub">Battle results decide who drops · Four in a row wins</p></header>
