@@ -163,6 +163,42 @@ header .sub{margin-top:20px}
 /* KEEP SUBTITLE CLEAR OF THE TITLE'S PURPLE GLOW */
 header .sub{margin-top:34px;position:relative;z-index:1}
 
+/* SMOKE AFTER DARK ARCADE VISUAL OVERHAUL */
+body:before,body:after{content:"";position:fixed;inset:-18%;pointer-events:none;z-index:0}
+body:before{background:radial-gradient(ellipse at 12% 22%,#a855f755 0,transparent 34%),radial-gradient(ellipse at 88% 30%,#ec489955 0,transparent 32%),radial-gradient(ellipse at 52% 95%,#2563eb44 0,transparent 38%);filter:blur(42px);animation:smokeDrift 22s ease-in-out infinite alternate}
+body:after{opacity:.42;background-image:radial-gradient(circle,#fff 0 1px,transparent 1.8px),radial-gradient(circle,#f9a8d4 0 1px,transparent 2px),radial-gradient(circle,#c4b5fd 0 1px,transparent 2px);background-size:113px 137px,173px 191px,229px 167px;background-position:0 0,42px 66px,95px 22px;animation:sparkDrift 34s linear infinite}
+.app{position:relative;z-index:1}
+@keyframes smokeDrift{0%{transform:translate3d(-2%,1%,0) scale(1)}50%{transform:translate3d(2%,-2%,0) scale(1.07)}100%{transform:translate3d(-1%,2%,0) scale(1.02)}}
+@keyframes sparkDrift{to{background-position:113px -137px,-131px 257px,324px -145px}}
+.board-wrap{border:2px solid #a78bfa;background:linear-gradient(145deg,#3b2363,#172b55 62%,#111a3b);box-shadow:inset 0 2px 0 #ffffff22,0 0 0 4px #291642,0 0 30px #9d5bff66,0 18px 42px #0009}
+.board{border:1px solid #8fc5ff;background:linear-gradient(145deg,#315fa6,#28356f 60%,#192852);box-shadow:inset 0 0 0 2px #ffffff12,inset 0 0 28px #071333,0 8px 18px #070b20aa}
+.cell{transition:filter .18s ease,box-shadow .18s ease,transform .18s ease}
+.piece.red{box-shadow:inset 0 3px 6px #ffffff70,inset 0 -6px 9px #0005,0 0 9px #ff416b,0 0 20px #ff416b88,0 3px 5px #0008}
+.piece.yellow{box-shadow:inset 0 3px 6px #ffffff88,inset 0 -6px 9px #0005,0 0 9px #ffdc42,0 0 20px #ffdc4288,0 3px 5px #0008}
+.piece.red:after,.piece.yellow:after{content:"";display:block;width:38%;height:24%;margin:17% 0 0 18%;border-radius:50%;background:#ffffff70;filter:blur(2px)}
+#board[data-preview="1"] .cell:nth-child(7n+1),#board[data-preview="2"] .cell:nth-child(7n+2),#board[data-preview="3"] .cell:nth-child(7n+3),#board[data-preview="4"] .cell:nth-child(7n+4),#board[data-preview="5"] .cell:nth-child(7n+5),#board[data-preview="6"] .cell:nth-child(7n+6),#board[data-preview="7"] .cell:nth-child(7n+7){filter:brightness(1.2);box-shadow:inset 0 0 0 2px #fff5,0 0 13px #c4b5fd66}
+#board[data-preview-team="1"][data-preview="1"] .cell:nth-child(7n+1),#board[data-preview-team="1"][data-preview="2"] .cell:nth-child(7n+2),#board[data-preview-team="1"][data-preview="3"] .cell:nth-child(7n+3),#board[data-preview-team="1"][data-preview="4"] .cell:nth-child(7n+4),#board[data-preview-team="1"][data-preview="5"] .cell:nth-child(7n+5),#board[data-preview-team="1"][data-preview="6"] .cell:nth-child(7n+6),#board[data-preview-team="1"][data-preview="7"] .cell:nth-child(7n+7){box-shadow:inset 0 0 0 2px #ff829a99,0 0 15px #ff416b66}
+#board[data-preview-team="2"][data-preview="1"] .cell:nth-child(7n+1),#board[data-preview-team="2"][data-preview="2"] .cell:nth-child(7n+2),#board[data-preview-team="2"][data-preview="3"] .cell:nth-child(7n+3),#board[data-preview-team="2"][data-preview="4"] .cell:nth-child(7n+4),#board[data-preview-team="2"][data-preview="5"] .cell:nth-child(7n+5),#board[data-preview-team="2"][data-preview="6"] .cell:nth-child(7n+6),#board[data-preview-team="2"][data-preview="7"] .cell:nth-child(7n+7){box-shadow:inset 0 0 0 2px #ffe27a99,0 0 15px #ffdc4266}
+.drop{position:relative;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.drop:hover:not(:disabled),.drop:focus-visible:not(:disabled){transform:translateY(-4px) scale(1.035);filter:brightness(1.25);box-shadow:0 0 0 2px #ffffff22,0 0 18px #c4b5fd88}
+.drop.requested{animation:requestBeacon 1.6s ease-in-out infinite alternate}
+@keyframes requestBeacon{to{filter:brightness(1.35);box-shadow:0 0 22px #ffe27a99}}
+.countdown-card{position:relative;overflow:hidden;box-shadow:0 0 0 5px #ffffff10,0 0 55px #a56bffbb,0 20px 70px #000c}
+.countdown-card:before{content:"";position:absolute;inset:-55%;border:1px solid #ffffff25;border-radius:50%;animation:countRing 5s linear infinite}
+.countdown-card:after{content:"⚡  RED  VS  YELLOW  ⚡";display:block;margin-top:13px;color:#ffe6a0;font-size:11px;font-weight:1000;letter-spacing:.15em;text-shadow:0 0 14px #ffcf6b}
+@keyframes countRing{to{transform:rotate(360deg) scale(1.12)}}
+.battle-score-card{transition:transform .25s ease,box-shadow .25s ease}
+.battle-score-card strong{animation:scoreGlow 2.8s ease-in-out infinite alternate}
+@keyframes scoreGlow{to{text-shadow:0 0 17px currentColor,0 0 28px #ffffff33;transform:scale(1.045)}}
+.battle-result-banner{animation:bannerGlow 3s ease-in-out infinite alternate}
+@keyframes bannerGlow{to{box-shadow:0 0 25px #a56bff55,0 0 45px #ec489922}}
+.victory-overlay:before{content:"";position:absolute;inset:8%;border:1px solid #ffe27a55;border-radius:32px;box-shadow:0 0 45px #d68aff44,inset 0 0 45px #d68aff22;pointer-events:none;animation:victoryFrame 3s ease-in-out infinite alternate}
+@keyframes victoryFrame{to{transform:scale(1.025);opacity:.45}}
+.victory-card{box-shadow:0 0 0 6px #ffffff12,0 0 55px #d68aff99,0 0 100px #ff91c855,0 24px 80px #000c}
+.victory-crown{filter:drop-shadow(0 0 18px #ffe27a);animation:crownBounce 1.4s ease-in-out infinite alternate}
+.btn,.drop{touch-action:manipulation}
+@media(prefers-reduced-motion:reduce){body:before,body:after,.drop.requested,.battle-result-banner,.battle-score-card strong,.countdown-card:before,.victory-overlay:before,.victory-crown{animation:none!important}}
+
 </style>
 </head>
 <body>
@@ -225,7 +261,7 @@ function render(){
   if(grid[r][c]){const piece=document.createElement('div');piece.className='piece '+(grid[r][c]===1?'red':'yellow')+(winningCells.some(([wr,wc])=>wr===r&&wc===c)?' winning':'');cell.append(piece)}
   board.append(cell);
  }
- for(let c=0;c<COLS;c++){const b=document.createElement('button');b.className='drop';b.textContent=(c+1)+' ↓';if(dropRequests.includes(c+1))b.classList.add('requested');b.title='Drop in column '+(c+1);b.setAttribute('aria-label','Drop piece in column '+(c+1));b.disabled=paused||!!winner||!battleWinnerSelected||grid[0][c]!==0;b.addEventListener('click',()=>play(c));cols.append(b)}
+ board.dataset.previewTeam=String(current);board.onmouseleave=()=>{delete board.dataset.preview};for(let c=0;c<COLS;c++){const b=document.createElement('button');b.className='drop';b.textContent=(c+1)+' ↓';if(dropRequests.includes(c+1))b.classList.add('requested');b.title='Preview column '+(c+1)+' · drop here';b.setAttribute('aria-label','Preview and drop in column '+(c+1));b.disabled=paused||!!winner||!battleWinnerSelected||grid[0][c]!==0;b.addEventListener('mouseenter',()=>{if(!b.disabled)board.dataset.preview=String(c+1)});b.addEventListener('focus',()=>{if(!b.disabled)board.dataset.preview=String(c+1)});b.addEventListener('mouseleave',()=>{if(board.dataset.preview===String(c+1))delete board.dataset.preview});b.addEventListener('blur',()=>{if(board.dataset.preview===String(c+1))delete board.dataset.preview});b.addEventListener('click',()=>play(c));cols.append(b)}
  $('score1').textContent=scores[0];$('score2').textContent=scores[1];
  const redBattleWins=battleLog.filter(entry=>entry.player===1).length,yellowBattleWins=battleLog.filter(entry=>entry.player===2).length;
  $('battleWins1').textContent=redBattleWins;$('battleWins2').textContent=yellowBattleWins;$('battleName1').textContent=name(1)+' · BATTLE WINS';$('battleName2').textContent=name(2)+' · BATTLE WINS';
