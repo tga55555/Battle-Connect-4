@@ -60,25 +60,38 @@ header .sub{margin-top:20px}
 /* KEEP SUBTITLE CLEAR OF THE TITLE'S PURPLE GLOW */
 header .sub{margin-top:34px;position:relative;z-index:1}
 
-/* SMOKE AFTER DARK — REAL CLOUD / WISP BACKGROUND */
-.smoke-fx{position:fixed;inset:-12%;z-index:0;overflow:hidden;pointer-events:none;contain:strict;opacity:.92}
-.smoke-cloud{position:absolute;display:block;width:58vw;height:48vh;min-width:340px;min-height:300px;border-radius:50%;filter:blur(30px) saturate(1.45);mix-blend-mode:screen;will-change:transform;opacity:.48;
+/* SMOKE AFTER DARK — VISIBLE, MOVING WISPS (MOBILE-SAFE) */
+body{isolation:isolate}
+.smoke-fx{position:fixed;inset:-8%;z-index:0;display:block;overflow:hidden;pointer-events:none;contain:paint;opacity:1}
+.smoke-cloud{position:absolute;display:block;width:100vw;height:58vh;min-width:360px;min-height:340px;border-radius:48%;will-change:transform,opacity;opacity:.72;filter:blur(19px) saturate(1.55);
  background:
- radial-gradient(ellipse at 22% 45%,rgba(191,91,255,.76) 0 7%,transparent 39%),
- radial-gradient(ellipse at 48% 35%,rgba(236,72,153,.52) 0 11%,transparent 45%),
- radial-gradient(ellipse at 70% 58%,rgba(120,91,255,.62) 0 9%,transparent 43%),
- radial-gradient(ellipse at 39% 72%,rgba(56,142,255,.38) 0 8%,transparent 42%),
- radial-gradient(ellipse at 83% 32%,rgba(255,129,202,.32) 0 6%,transparent 34%);
- mask-image:radial-gradient(ellipse at center,#000 22%,rgba(0,0,0,.85) 48%,transparent 75%)}
-.smoke-cloud.one{left:-17%;top:3%;animation:smokeRollOne 27s ease-in-out infinite alternate}
-.smoke-cloud.two{right:-19%;top:27%;width:66vw;height:52vh;opacity:.42;filter:blur(38px) saturate(1.5);animation:smokeRollTwo 32s ease-in-out infinite alternate}
-.smoke-cloud.three{left:20%;bottom:-25%;width:62vw;height:42vh;opacity:.34;filter:blur(34px) saturate(1.35);animation:smokeRollThree 35s ease-in-out infinite alternate}
-@keyframes smokeRollOne{0%{transform:translate3d(-4%,2%,0) rotate(-13deg) scale(.88)}50%{transform:translate3d(10%,7%,0) rotate(9deg) scale(1.14)}100%{transform:translate3d(3%,-6%,0) rotate(-5deg) scale(1.02)}}
-@keyframes smokeRollTwo{0%{transform:translate3d(5%,-5%,0) rotate(14deg) scale(1.08)}55%{transform:translate3d(-9%,8%,0) rotate(-10deg) scale(.9)}100%{transform:translate3d(-2%,-3%,0) rotate(8deg) scale(1.16)}}
-@keyframes smokeRollThree{0%{transform:translate3d(-5%,5%,0) rotate(8deg) scale(.9)}100%{transform:translate3d(8%,-7%,0) rotate(-12deg) scale(1.13)}}
+ radial-gradient(ellipse 34% 25% at 18% 54%,rgba(191,91,255,.78),transparent 76%),
+ radial-gradient(ellipse 38% 24% at 42% 38%,rgba(235,72,165,.68),transparent 78%),
+ radial-gradient(ellipse 35% 30% at 68% 57%,rgba(114,94,255,.72),transparent 78%),
+ radial-gradient(ellipse 32% 22% at 86% 35%,rgba(255,133,203,.56),transparent 78%),
+ radial-gradient(ellipse 50% 18% at 48% 76%,rgba(61,137,255,.48),transparent 80%);
+ -webkit-mask-image:radial-gradient(ellipse at center,#000 20%,rgba(0,0,0,.92) 58%,transparent 82%);
+ mask-image:radial-gradient(ellipse at center,#000 20%,rgba(0,0,0,.92) 58%,transparent 82%)}
+.smoke-cloud:before,.smoke-cloud:after{content:"";position:absolute;inset:8% -12%;border-radius:50%;pointer-events:none}
+.smoke-cloud:before{background:
+ radial-gradient(ellipse 44% 15% at 24% 42%,rgba(224,139,255,.68),transparent 74%),
+ radial-gradient(ellipse 38% 13% at 57% 58%,rgba(255,117,194,.58),transparent 76%),
+ radial-gradient(ellipse 35% 14% at 78% 36%,rgba(111,157,255,.58),transparent 75%);
+ filter:blur(13px);transform:rotate(-12deg);animation:smokeWisps 13s ease-in-out infinite alternate}
+.smoke-cloud:after{inset:18% -5%;background:
+ radial-gradient(ellipse 35% 12% at 35% 55%,rgba(255,174,220,.5),transparent 76%),
+ radial-gradient(ellipse 42% 11% at 72% 44%,rgba(146,115,255,.56),transparent 78%);
+ filter:blur(17px);transform:rotate(15deg);animation:smokeWisps 17s ease-in-out infinite alternate-reverse}
+.smoke-cloud.one{left:-32%;top:2%;animation:smokeDriftA 18s ease-in-out infinite alternate}
+.smoke-cloud.two{right:-35%;top:28%;opacity:.68;filter:blur(22px) saturate(1.6);animation:smokeDriftB 22s ease-in-out infinite alternate}
+.smoke-cloud.three{left:-4%;bottom:-28%;opacity:.58;filter:blur(24px) saturate(1.5);animation:smokeDriftC 25s ease-in-out infinite alternate}
+@keyframes smokeDriftA{0%{transform:translate3d(-7%,3%,0) rotate(-14deg) scale(.88)}100%{transform:translate3d(13%,-5%,0) rotate(12deg) scale(1.18)}}
+@keyframes smokeDriftB{0%{transform:translate3d(8%,-7%,0) rotate(15deg) scale(1.12)}100%{transform:translate3d(-13%,8%,0) rotate(-13deg) scale(.91)}}
+@keyframes smokeDriftC{0%{transform:translate3d(-5%,8%,0) rotate(8deg) scale(.94)}100%{transform:translate3d(9%,-8%,0) rotate(-11deg) scale(1.16)}}
+@keyframes smokeWisps{0%{translate:-5% 3%;scale:.92 1;rotate:-7deg}100%{translate:7% -4%;scale:1.12 .88;rotate:8deg}}
 .app,.shell{position:relative;z-index:1}
-@media(max-width:600px){.smoke-cloud{filter:blur(25px) saturate(1.35);opacity:.42}.smoke-cloud.two{opacity:.34}.smoke-cloud.three{opacity:.28}}
-@media(prefers-reduced-motion:reduce){.smoke-cloud{animation:none!important}}
+@media(max-width:600px){.smoke-cloud{width:125vw;height:48vh;min-width:420px;filter:blur(17px) saturate(1.65);opacity:.78}.smoke-cloud.two{opacity:.72}.smoke-cloud.three{opacity:.62}}
+@media(prefers-reduced-motion:reduce){.smoke-cloud,.smoke-cloud:before,.smoke-cloud:after{animation:none!important}}
 .board-wrap{border:2px solid #c4a5ff;background:linear-gradient(145deg,#3b2363,#172b55 62%,#111a3b);box-shadow:inset 0 2px 0 #ffffff22,0 0 0 4px #291642,0 0 35px #9d5bff77,0 18px 42px #0009}
 .board{border-color:#a5d4ff;background:linear-gradient(145deg,#315fa6,#28356f 60%,#192852);box-shadow:inset 0 0 0 2px #ffffff12,inset 0 0 28px #071333,0 8px 18px #070b20aa}
 .cell{transition:filter .2s ease,box-shadow .2s ease}
