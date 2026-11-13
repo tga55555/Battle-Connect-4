@@ -83,6 +83,21 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 @media(max-width:420px){.victory-card{padding:26px 18px 20px;border-radius:23px}.victory-crown{font-size:52px}.victory-subtitle{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.victory-overlay.show,.victory-card,.victory-crown,.victory-card:before,.victory-card:after{animation:none!important}}
 
+
+/* RUNNING BATTLE HISTORY */
+.battle-history{margin:0 0 14px;padding:13px 14px;border:1px solid #75529a;border-radius:16px;background:linear-gradient(145deg,#2b1b43,#17172f);box-shadow:0 7px 18px #08031355}
+.history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.history-heading strong{font-size:11px;letter-spacing:.16em;color:#f4d5ff}
+.history-heading span{font-size:10px;color:#bca8d8}
+.history-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:220px;overflow:auto}
+.history-item{display:grid;grid-template-columns:68px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;background:#ffffff09;border:1px solid #ffffff12;font-size:12px}
+.history-number{color:#bba9d6;font-size:10px;font-weight:800;letter-spacing:.06em}
+.history-winner{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-winner.red-text{color:#ff829a}.history-winner.yellow-text{color:#ffe27a}
+.history-drop{font-size:10px;color:#d5c8e8;text-align:right;white-space:nowrap}
+.history-empty{text-align:center;color:#bba9d6;font-size:11px;padding:10px 4px}
+@media(max-width:420px){.battle-history{padding:11px}.history-item{grid-template-columns:58px minmax(0,1fr) auto;gap:6px;padding:8px 7px}.history-drop{font-size:9px}}
+
 </style>
 </head>
 <body>
@@ -95,6 +110,10 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 <div class="player" id="player2"><div><i class="dot" style="background:var(--yellow)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 2</span></div><input id="name2" value="YELLOW TEAM" maxlength="16" aria-label="Player 2 name"><div class="score" id="score2">0</div></div>
 </section>
 <section class="stats" aria-label="Battle statistics"><div class="stat"><b id="battleCount">0</b><span>Battles played</span></div><div class="stat"><b id="streakCount">0</b><span id="streakLabel">Current streak</span></div><div class="stat"><b id="bestStreak">0</b><span>Best streak</span></div></section>
+<section class="battle-history" aria-label="Battle history">
+ <div class="history-heading"><strong>⚔️ BATTLE HISTORY</strong><span id="historySummary">No battles yet</span></div>
+ <ol class="history-list" id="historyList"><li class="history-empty">Battle results will appear here</li></ol>
+</section>
 <div class="announcement" id="announcement" aria-live="assertive"><strong id="announcementTitle"></strong><small id="announcementSub">ONE DROP EARNED</small></div>
 <div class="victory-overlay" id="victoryOverlay" role="dialog" aria-modal="true" aria-labelledby="victoryTitle">
  <div class="victory-card">
@@ -119,7 +138,7 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 const ROWS=6,COLS=7;
 let grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
 let current=1,winner=0,winningCells=[],scores=[0,0],history=[],roundStarter=1,battleReady=true,battleWinnerSelected=false;
-let battleCount=0,streakPlayer=0,streakCount=0,bestStreak=0,pendingSnapshot=null,soundEnabled=true,audioContext=null,lastPiece=null;
+let battleCount=0,streakPlayer=0,streakCount=0,bestStreak=0,pendingSnapshot=null,soundEnabled=true,audioContext=null,lastPiece=null,battleLog=[];
 const $=id=>document.getElementById(id);
 const name=n=>($('name'+n).value.trim()||('PLAYER '+n));
 function playTone(freq=520,duration=.13,type='sine'){if(!soundEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();if(audioContext.state==='suspended')audioContext.resume();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audioContext.currentTime);gain.gain.setValueAtTime(.0001,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.12,audioContext.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+duration)}catch(e){}}
@@ -135,6 +154,10 @@ function render(){
  for(let c=0;c<COLS;c++){const b=document.createElement('button');b.className='drop';b.textContent='↓';b.title='Drop in column '+(c+1);b.setAttribute('aria-label','Drop piece in column '+(c+1));b.disabled=!!winner||!battleWinnerSelected||grid[0][c]!==0;b.addEventListener('click',()=>play(c));cols.append(b)}
  $('score1').textContent=scores[0];$('score2').textContent=scores[1];
  $('battleCount').textContent=battleCount;$('streakCount').textContent=streakCount;$('bestStreak').textContent=bestStreak;
+ const historyList=$('historyList');historyList.innerHTML='';
+ $('historySummary').textContent=battleLog.length?battleLog.length+' battle'+(battleLog.length===1?'':'s'):'No battles yet';
+ if(!battleLog.length){const empty=document.createElement('li');empty.className='history-empty';empty.textContent='Battle results will appear here';historyList.append(empty)}
+ else{battleLog.slice(-8).reverse().forEach(entry=>{const item=document.createElement('li');item.className='history-item';const number=document.createElement('span');number.className='history-number';number.textContent='BATTLE '+entry.number;const who=document.createElement('span');who.className='history-winner '+(entry.player===1?'red-text':'yellow-text');who.textContent=name(entry.player)+' WON';const drop=document.createElement('span');drop.className='history-drop';drop.textContent=entry.column?'Column '+entry.column:'Drop pending';item.append(number,who,drop);historyList.append(item)})}
  $('streakCount').className=streakPlayer===1?'streak-red':streakPlayer===2?'streak-yellow':'';
  $('streakLabel').textContent=streakPlayer?(name(streakPlayer)+' streak'):'Current streak';
  $('soundToggle').textContent=soundEnabled?'🔊 Sound on':'🔇 Sound off';$('soundToggle').setAttribute('aria-pressed',String(!soundEnabled));
@@ -158,7 +181,7 @@ function getLine(r,c,p,dr,dc){let line=[[r,c]];for(const sign of [-1,1]){let rr=
 function play(c){
  if(winner||!battleWinnerSelected||grid[0][c]!==0)return;
  let r=ROWS-1;while(r>=0&&grid[r][c]!==0)r--;if(r<0)return;
- history.push({r,c,p:current,battleReady,battleWinnerSelected,streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount});grid[r][c]=current;battleReady=false;battleWinnerSelected=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
+ history.push({r,c,p:current,battleReady,battleWinnerSelected,streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount,battleLogLength:battleLog.length});if(battleLog.length)battleLog[battleLog.length-1].column=c+1;grid[r][c]=current;battleReady=false;battleWinnerSelected=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
  let lines=[[0,1],[1,0],[1,1],[1,-1]].map(([dr,dc])=>getLine(r,c,current,dr,dc));
  let line=lines.find(x=>x.length>=4);
  if(line){winner=current;winningCells=line;scores[current-1]++;roundStarter=current;setTimeout(()=>celebrate(current),220)}
@@ -166,15 +189,15 @@ function play(c){
  
  render();
 }
-function selectBattleWinner(p){if(winner||!battleReady||battleWinnerSelected)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount};current=p;battleWinnerSelected=true;battleCount++;if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p);render()}
+function selectBattleWinner(p){if(winner||!battleReady||battleWinnerSelected)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount};current=p;battleWinnerSelected=true;battleCount++;battleLog.push({number:battleCount,player:p,column:null});if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p);render()}
 function startRound(){$('victoryOverlay').className='victory-overlay';grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;pendingSnapshot=null;render()}
 $('newRound').addEventListener('click',startRound);
 $('victoryNext').addEventListener('click',startRound);
-$('undo').addEventListener('click',()=>{if(!history.length)return;$('victoryOverlay').className='victory-overlay';const last=history.pop();grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;streakPlayer=last.streakPlayer;streakCount=last.streakCount;bestStreak=last.bestStreak;battleCount=last.battleCount;pendingSnapshot=null;render()});
+$('undo').addEventListener('click',()=>{if(!history.length)return;$('victoryOverlay').className='victory-overlay';const last=history.pop();battleLog.length=last.battleLogLength;grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;streakPlayer=last.streakPlayer;streakCount=last.streakCount;bestStreak=last.bestStreak;battleCount=last.battleCount;pendingSnapshot=null;render()});
 $('redWon').addEventListener('click',()=>selectBattleWinner(1));
 $('yellowWon').addEventListener('click',()=>selectBattleWinner(2));
 $('nextBattle').addEventListener('click',()=>{if(winner||battleReady||battleWinnerSelected)return;battleReady=true;render()});
-$('reset').addEventListener('click',()=>{scores=[0,0];roundStarter=1;battleCount=0;streakPlayer=0;streakCount=0;bestStreak=0;pendingSnapshot=null;startRound()});
+$('reset').addEventListener('click',()=>{scores=[0,0];battleLog=[];roundStarter=1;battleCount=0;streakPlayer=0;streakCount=0;bestStreak=0;pendingSnapshot=null;startRound()});
 $('soundToggle').addEventListener('click',()=>{soundEnabled=!soundEnabled;if(soundEnabled)playTone(600,.1);render()});
 $('name1').addEventListener('input',render);$('name2').addEventListener('input',render);
 render();
