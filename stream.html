@@ -163,74 +163,73 @@ window.addEventListener('storage',e=>{if(e.key===key&&e.newValue){try{accept(JSO
  if(!canvas)return;
  const ctx=canvas.getContext('2d',{alpha:true});
  if(!ctx)return;
- let w=0,h=0,dpr=1,last=0,frame=0;
- const colors=[
-  [220,92,255],[255,93,195],[151,111,255],[91,151,255],[238,125,220]
- ];
- let clouds=[];
- function rand(seed){let x=Math.sin(seed*127.1+311.7)*43758.5453;return x-Math.floor(x)}
- function resize(){
-  dpr=Math.min(window.devicePixelRatio||1,1.5);
-  w=window.innerWidth;h=window.innerHeight;
-  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  clouds=[];
-  const count=Math.max(20,Math.min(34,Math.round(w/18)));
-  for(let i=0;i<count;i++){
-   const c=colors[i%colors.length];
-   clouds.push({x:rand(i+2)*w,y:rand(i+41)*h,rx:90+rand(i+8)*150,ry:95+rand(i+12)*180,
-    phase:rand(i+18)*Math.PI*2,speed:.12+rand(i+24)*.2,drift:18+rand(i+28)*40,
-    alpha:.25+rand(i+33)*.22,color:c,rot:rand(i+39)*Math.PI*2});
-  }
+ let w=0,h=0,dpr=1,last=0,elapsed=0,particles=[];
+ const palette=[[174,126,225],[205,105,191],[127,135,225],[225,145,197],[142,155,211]];
+ let seed=17;
+ function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+ function makeParticle(initial){
+  const source=[.12,.5,.88][Math.floor(rnd()*3)],life=7+rnd()*7;
+  return {x:w*source+(rnd()-.5)*w*.13,y:initial?h*(.22+rnd()*.9):h+30+rnd()*90,
+   age:initial?rnd()*life:0,life,base:18+rnd()*34,stretch:1.2+rnd()*1.9,
+   vx:(rnd()-.5)*13,vy:-(17+rnd()*24),phase:rnd()*6.28,swirl:10+rnd()*30,
+   hue:palette[Math.floor(rnd()*palette.length)],opacity:.09+rnd()*.11};
  }
- function puff(x,y,rx,ry,color,alpha,rotation){
-  ctx.save();ctx.translate(x,y);ctx.rotate(rotation);ctx.scale(1,ry/rx);
-  const r=rx;
-  const g=ctx.createRadialGradient(0,0,r*.04,0,0,r);
-  g.addColorStop(0,'rgba('+color.join(',')+','+(alpha*.95)+')');
-  g.addColorStop(.28,'rgba('+color.join(',')+','+(alpha*.62)+')');
-  g.addColorStop(.62,'rgba('+color.join(',')+','+(alpha*.2)+')');
+ function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,1.5);w=window.innerWidth;h=window.innerHeight;
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);particles=[];
+  for(let i=0;i<58;i++)particles.push(makeParticle(true));
+ }
+ function cloud(x,y,r,color,alpha,aspect,rotation){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rotation);ctx.scale(1,aspect);
+  const g=ctx.createRadialGradient(-r*.12,-r*.12,r*.02,0,0,r);
+  g.addColorStop(0,'rgba('+color.join(',')+','+(alpha*.8)+')');
+  g.addColorStop(.32,'rgba('+color.join(',')+','+(alpha*.48)+')');
+  g.addColorStop(.68,'rgba('+color.join(',')+','+(alpha*.13)+')');
   g.addColorStop(1,'rgba('+color.join(',')+',0)');
   ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();ctx.restore();
  }
- function draw(t){
-  if(t-last<32){requestAnimationFrame(draw);return}
-  const dt=Math.min((t-last)/1000,.06);last=t;frame+=dt;
-  ctx.clearRect(0,0,w,h);
-  ctx.globalCompositeOperation='screen';
-  for(const c of clouds){
-   c.y-=c.speed*22*dt;
-   if(c.y < -c.ry*2)c.y=h+c.ry;
-   const sway=Math.sin(frame*.22+c.phase)*c.drift;
-   const curl=Math.sin(frame*.31+c.phase*1.7);
-   const x=c.x+sway, y=c.y;
-   const breathe=1+Math.sin(frame*.42+c.phase)*.09;
-   const base=c.alpha;
-   ctx.filter='blur(22px)';
-   puff(x,y,c.rx*.95*breathe,c.ry*.48,c.color,base*.42,c.rot);
-   puff(x-c.rx*.35+curl*13,y-c.ry*.16,c.rx*.58,c.ry*.48,c.color,base*.5,c.rot-.45);
-   puff(x+c.rx*.3-curl*11,y+c.ry*.12,c.rx*.62,c.ry*.52,colors[(colors.indexOf(c.color)+2)%colors.length],base*.42,c.rot+.5);
-   puff(x+curl*c.rx*.18,y-c.ry*.28,c.rx*.38,c.ry*.42,colors[(colors.indexOf(c.color)+1)%colors.length],base*.36,c.rot+.9);
-   // Long, soft curling tendrils give each cloud a rising smoke silhouette.
-   ctx.filter='blur(13px)';
-   for(let k=0;k<2;k++){
-    const side=k===0?-1:1;
-    const sx=x+side*c.rx*.18, sy=y-c.ry*.05;
-    const ex=sx+side*(24+curl*22), ey=sy-c.ry*(.65+Math.sin(frame*.3+c.phase+k)*.12);
-    const grad=ctx.createLinearGradient(sx,sy,ex,ey);
-    grad.addColorStop(0,'rgba('+c.color.join(',')+','+(base*.34)+')');
-    grad.addColorStop(1,'rgba('+c.color.join(',')+',0)');
-    ctx.strokeStyle=grad;ctx.lineWidth=18+k*10;ctx.lineCap='round';
-    ctx.beginPath();ctx.moveTo(sx,sy);
-    ctx.bezierCurveTo(sx-side*35,sy-c.ry*.28,ex+side*35,ey+c.ry*.2,ex,ey);
-    ctx.stroke();
-   }
+ function renderParticle(p){
+  const life=p.age/p.life,fade=Math.min(1,p.age/.8,Math.max(0,(1-life)*3.2));
+  const swell=.55+life*.95,sway=Math.sin(elapsed*.7+p.phase+p.age*.55)*p.swirl;
+  const x=p.x+sway,y=p.y,r=p.base*swell,a=p.opacity*fade;
+  ctx.filter='blur(13px)';
+  cloud(x,y,r*1.45,p.hue,a*.72,p.stretch*.72,p.phase);
+  cloud(x-r*.48,y-r*.12,r*.92,p.hue,a*.62,p.stretch*.78,-.34+p.phase*.12);
+  cloud(x+r*.42,y-r*.28,r*1.02,p.hue,a*.52,p.stretch*.84,.42+p.phase*.1);
+  cloud(x-r*.12,y-r*.7,r*.72,p.hue,a*.38,p.stretch*.92,-.2);
+  ctx.filter='blur(5px)';
+  for(let k=0;k<3;k++){
+   const side=k-1,sx=x+side*r*.38,sy=y-r*.25,length=r*(1.5+k*.22);
+   const sway2=Math.sin(elapsed*1.1+p.phase+k)*r*.38;
+   const grad=ctx.createLinearGradient(sx,sy,sx+sway2,sy-length);
+   grad.addColorStop(0,'rgba('+p.hue.join(',')+','+(a*.8)+')');
+   grad.addColorStop(.55,'rgba('+p.hue.join(',')+','+(a*.32)+')');
+   grad.addColorStop(1,'rgba('+p.hue.join(',')+',0)');
+   ctx.strokeStyle=grad;ctx.lineWidth=2.5+k*1.7;ctx.lineCap='round';
+   ctx.beginPath();ctx.moveTo(sx,sy);
+   ctx.bezierCurveTo(sx-side*r*.75,sy-length*.25,sx+sway2-side*r*.45,sy-length*.72,sx+sway2,sy-length);
+   ctx.stroke();
   }
-  ctx.filter='none';ctx.globalCompositeOperation='source-over';
+  ctx.filter='none';
+ }
+ function draw(t){
+  if(t-last<30){requestAnimationFrame(draw);return}
+  const dt=Math.min((t-last)/1000,.05);last=t;elapsed+=dt;
+  ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='screen';
+  for(let i=particles.length-1;i>=0;i--){
+   const p=particles[i];p.age+=dt;
+   const turbulence=Math.sin(elapsed*.85+p.phase+p.age*.8);
+   p.x+=(p.vx+turbulence*8)*dt;p.y+=p.vy*dt;
+   p.vx+=Math.sin(elapsed*.4+p.phase)*.8*dt;
+   if(p.age>=p.life||p.y < -260){particles.splice(i,1);continue}
+   renderParticle(p);
+  }
+  while(particles.length<58)particles.push(makeParticle(false));
+  ctx.globalCompositeOperation='source-over';ctx.filter='none';
   requestAnimationFrame(draw);
  }
- resize();
- window.addEventListener('resize',resize,{passive:true});
+ resize();window.addEventListener('resize',resize,{passive:true});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)last=0});
  requestAnimationFrame(draw);
 })();
