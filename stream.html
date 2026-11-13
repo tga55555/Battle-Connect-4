@@ -60,38 +60,36 @@ header .sub{margin-top:20px}
 /* KEEP SUBTITLE CLEAR OF THE TITLE'S PURPLE GLOW */
 header .sub{margin-top:34px;position:relative;z-index:1}
 
-/* SMOKE AFTER DARK — VISIBLE, MOVING WISPS (MOBILE-SAFE) */
+/* SMOKE AFTER DARK — ORGANIC VAPOUR, WITH A SAFARI-SAFE FALLBACK */
 body{isolation:isolate}
-.smoke-fx{position:fixed;inset:-8%;z-index:0;display:block;overflow:hidden;pointer-events:none;contain:paint;opacity:1}
-.smoke-cloud{position:absolute;display:block;width:100vw;height:58vh;min-width:360px;min-height:340px;border-radius:48%;will-change:transform,opacity;opacity:.72;filter:blur(19px) saturate(1.55);
- background:
- radial-gradient(ellipse 34% 25% at 18% 54%,rgba(191,91,255,.78),transparent 76%),
- radial-gradient(ellipse 38% 24% at 42% 38%,rgba(235,72,165,.68),transparent 78%),
- radial-gradient(ellipse 35% 30% at 68% 57%,rgba(114,94,255,.72),transparent 78%),
- radial-gradient(ellipse 32% 22% at 86% 35%,rgba(255,133,203,.56),transparent 78%),
- radial-gradient(ellipse 50% 18% at 48% 76%,rgba(61,137,255,.48),transparent 80%);
- -webkit-mask-image:radial-gradient(ellipse at center,#000 20%,rgba(0,0,0,.92) 58%,transparent 82%);
- mask-image:radial-gradient(ellipse at center,#000 20%,rgba(0,0,0,.92) 58%,transparent 82%)}
-.smoke-cloud:before,.smoke-cloud:after{content:"";position:absolute;inset:8% -12%;border-radius:50%;pointer-events:none}
-.smoke-cloud:before{background:
- radial-gradient(ellipse 44% 15% at 24% 42%,rgba(224,139,255,.68),transparent 74%),
- radial-gradient(ellipse 38% 13% at 57% 58%,rgba(255,117,194,.58),transparent 76%),
- radial-gradient(ellipse 35% 14% at 78% 36%,rgba(111,157,255,.58),transparent 75%);
- filter:blur(13px);transform:rotate(-12deg);animation:smokeWisps 13s ease-in-out infinite alternate}
-.smoke-cloud:after{inset:18% -5%;background:
- radial-gradient(ellipse 35% 12% at 35% 55%,rgba(255,174,220,.5),transparent 76%),
- radial-gradient(ellipse 42% 11% at 72% 44%,rgba(146,115,255,.56),transparent 78%);
- filter:blur(17px);transform:rotate(15deg);animation:smokeWisps 17s ease-in-out infinite alternate-reverse}
-.smoke-cloud.one{left:-32%;top:2%;animation:smokeDriftA 18s ease-in-out infinite alternate}
-.smoke-cloud.two{right:-35%;top:28%;opacity:.68;filter:blur(22px) saturate(1.6);animation:smokeDriftB 22s ease-in-out infinite alternate}
-.smoke-cloud.three{left:-4%;bottom:-28%;opacity:.58;filter:blur(24px) saturate(1.5);animation:smokeDriftC 25s ease-in-out infinite alternate}
-@keyframes smokeDriftA{0%{transform:translate3d(-7%,3%,0) rotate(-14deg) scale(.88)}100%{transform:translate3d(13%,-5%,0) rotate(12deg) scale(1.18)}}
-@keyframes smokeDriftB{0%{transform:translate3d(8%,-7%,0) rotate(15deg) scale(1.12)}100%{transform:translate3d(-13%,8%,0) rotate(-13deg) scale(.91)}}
-@keyframes smokeDriftC{0%{transform:translate3d(-5%,8%,0) rotate(8deg) scale(.94)}100%{transform:translate3d(9%,-8%,0) rotate(-11deg) scale(1.16)}}
-@keyframes smokeWisps{0%{translate:-5% 3%;scale:.92 1;rotate:-7deg}100%{translate:7% -4%;scale:1.12 .88;rotate:8deg}}
+.smoke-fx{position:fixed;inset:0;z-index:0;display:block;overflow:hidden;pointer-events:none;contain:strict;opacity:1}
+.smoke-fx svg{position:absolute;width:0;height:0;overflow:hidden}
+.smoke-plume{position:absolute;display:block;pointer-events:none;width:125vw;height:72vh;min-height:440px;opacity:.82;mix-blend-mode:screen;filter:url(#smoke-distort) blur(5px);will-change:transform}
+.smoke-plume:before,.smoke-plume:after{content:"";position:absolute;inset:-12%;border-radius:48%;background:
+ radial-gradient(ellipse 13% 42% at 22% 68%,rgba(220,119,255,.0),rgba(220,119,255,.52) 42%,transparent 76%),
+ radial-gradient(ellipse 17% 48% at 38% 48%,rgba(244,105,197,.0),rgba(244,105,197,.48) 44%,transparent 78%),
+ radial-gradient(ellipse 12% 44% at 54% 62%,rgba(157,123,255,.0),rgba(157,123,255,.58) 43%,transparent 77%),
+ radial-gradient(ellipse 18% 52% at 70% 42%,rgba(91,160,255,.0),rgba(91,160,255,.42) 45%,transparent 78%),
+ radial-gradient(ellipse 12% 40% at 84% 65%,rgba(255,151,214,.0),rgba(255,151,214,.48) 43%,transparent 78%);
+}
+.smoke-plume:after{inset:4% -8%;opacity:.75;transform:rotate(16deg) scale(1.12);background:
+ radial-gradient(ellipse 9% 38% at 27% 38%,rgba(247,174,255,.48),transparent 74%),
+ radial-gradient(ellipse 14% 45% at 48% 68%,rgba(236,107,198,.48),transparent 76%),
+ radial-gradient(ellipse 10% 42% at 69% 34%,rgba(121,157,255,.52),transparent 75%),
+ radial-gradient(ellipse 13% 39% at 83% 60%,rgba(190,126,255,.48),transparent 76%);
+}
+.smoke-plume.a{left:-34%;top:-18%;animation:vapourRiseA 10s ease-in-out infinite alternate}
+.smoke-plume.b{right:-42%;top:20%;opacity:.76;animation:vapourRiseB 13s ease-in-out infinite alternate-reverse}
+.smoke-plume.c{left:-22%;bottom:-35%;opacity:.72;animation:vapourRiseC 15s ease-in-out infinite alternate}
+.smoke-plume.d{right:-28%;bottom:-28%;opacity:.66;animation:vapourRiseD 12s ease-in-out infinite alternate-reverse}
+@keyframes vapourRiseA{0%{transform:translate3d(-5%,8%,0) rotate(-12deg) scale(.88,.94)}100%{transform:translate3d(14%,-13%,0) rotate(13deg) scale(1.18,1.12)}}
+@keyframes vapourRiseB{0%{transform:translate3d(8%,9%,0) rotate(14deg) scale(1.08,.9)}100%{transform:translate3d(-13%,-12%,0) rotate(-12deg) scale(.92,1.16)}}
+@keyframes vapourRiseC{0%{transform:translate3d(-9%,5%,0) rotate(8deg) scale(.94,1.08)}100%{transform:translate3d(12%,-15%,0) rotate(-15deg) scale(1.14,.92)}}
+@keyframes vapourRiseD{0%{transform:translate3d(7%,10%,0) rotate(-10deg) scale(1.12,.9)}100%{transform:translate3d(-11%,-12%,0) rotate(12deg) scale(.9,1.14)}}
 .app,.shell{position:relative;z-index:1}
-@media(max-width:600px){.smoke-cloud{width:125vw;height:48vh;min-width:420px;filter:blur(17px) saturate(1.65);opacity:.78}.smoke-cloud.two{opacity:.72}.smoke-cloud.three{opacity:.62}}
-@media(prefers-reduced-motion:reduce){.smoke-cloud,.smoke-cloud:before,.smoke-cloud:after{animation:none!important}}
+@media(max-width:600px){.smoke-plume{width:150vw;height:66vh;min-height:500px;filter:url(#smoke-distort) blur(7px)}.smoke-plume.a{left:-52%}.smoke-plume.b{right:-58%}.smoke-plume.c{left:-45%}.smoke-plume.d{right:-48%}}
+@media(prefers-reduced-motion:reduce){.smoke-plume{animation:none!important}}
+
 .board-wrap{border:2px solid #c4a5ff;background:linear-gradient(145deg,#3b2363,#172b55 62%,#111a3b);box-shadow:inset 0 2px 0 #ffffff22,0 0 0 4px #291642,0 0 35px #9d5bff77,0 18px 42px #0009}
 .board{border-color:#a5d4ff;background:linear-gradient(145deg,#315fa6,#28356f 60%,#192852);box-shadow:inset 0 0 0 2px #ffffff12,inset 0 0 28px #071333,0 8px 18px #070b20aa}
 .cell{transition:filter .2s ease,box-shadow .2s ease}
@@ -139,7 +137,9 @@ body{isolation:isolate}
 }
 
 </style></head>
-<body><div class="smoke-fx" aria-hidden="true"><i class="smoke-cloud one"></i><i class="smoke-cloud two"></i><i class="smoke-cloud three"></i></div><div class="shell">
+<body><div class="smoke-fx" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" focusable="false"><defs><filter id="smoke-distort" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".009 .022" numOctaves="3" seed="12" result="vapourNoise"/><feDisplacementMap in="SourceGraphic" in2="vapourNoise" scale="54" xChannelSelector="R" yChannelSelector="G" result="warped"/><feGaussianBlur in="warped" stdDeviation="5"/></filter></defs></svg>
+<i class="smoke-plume a"></i><i class="smoke-plume b"></i><i class="smoke-plume c"></i><i class="smoke-plume d"></i></div><div class="shell">
 <header><div class="eyebrow">SMOKE AFTER DARK</div><div class="live-tag"><i class="live-dot"></i> LIVE GAME DISPLAY</div><h1>BATTLE <span>CONNECT 4</span></h1><p class="sub">Battle results decide who drops · Four in a row wins</p></header>
 <div class="stream-toolbar" aria-label="Stream display controls"><span class="connection-pill offline" id="operatorConnection">⚠️ OPERATOR NOT CONNECTED</span><button type="button" id="fullscreenBtn">⛶ FULL SCREEN</button><button type="button" id="toggleTicker">HIDE TICKER</button><button type="button" id="toggleHistory">HIDE HISTORY</button><button type="button" id="toggleInfo">HIDE SIDE PANEL</button></div>
 <div class="activity-ticker" aria-live="polite"><span class="ticker-label">LIVE ACTIVITY</span><div class="ticker-window"><div id="activityTicker" class="ticker-track">Waiting for the first battle…</div></div></div>
