@@ -30,15 +30,15 @@
 <div class="board" id="board"></div><div class="columns" id="columns" aria-label="Choose a column"></div>
 </section>
 <div class="winner-panel" id="winnerPanel"><strong id="winnerTitle"></strong><p id="winnerNote"></p></div>
-<div class="actions"><button class="btn primary" id="newRound">New round</button><button class="btn" id="undo">Undo last move</button><button class="btn" id="switch">Battle result: switch player</button><button class="btn" id="reset">Reset scores & game</button></div>
-<p class="helper">The highlighted player drops next. A player can drop multiple times in a row. When the battle result gives the turn to the other player, use “Switch next turn”. After a round win, the winner starts the next round and chooses the opening column.</p>
+<div class="actions"><button class="btn" id="redWon">RED WON — drop 1</button><button class="btn" id="yellowWon">YELLOW WON — drop 1</button><button class="btn" id="nextBattle" disabled>Next battle</button><button class="btn" id="undo">Undo last drop</button><button class="btn primary" id="newRound">New round</button><button class="btn" id="reset">Reset scores & game</button></div>
+<p class="helper">Choose the winner of each battle, then choose a column to drop exactly one piece. Start the next battle before recording another result. The same player can win consecutive battles and drop consecutive pieces. The round winner starts the next round.</p>
 <div class="footer">BATTLE CONNECT 4 · STREAM OVERLAY FRIENDLY</div>
 </main>
 <script>
 (() => {
 const ROWS=6,COLS=7;
 let grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
-let current=1,winner=0,winningCells=[],scores=[0,0],history=[],roundStarter=1;
+let current=1,winner=0,winningCells=[],scores=[0,0],history=[],roundStarter=1,battleReady=true,battleWinnerSelected=false;
 const $=id=>document.getElementById(id);
 const name=n=>($('name'+n).value.trim()||('PLAYER '+n));
 function render(){
@@ -48,35 +48,42 @@ function render(){
   if(grid[r][c]){const piece=document.createElement('div');piece.className='piece '+(grid[r][c]===1?'red':'yellow')+(winningCells.some(([wr,wc])=>wr===r&&wc===c)?' winning':'');cell.append(piece)}
   board.append(cell);
  }
- for(let c=0;c<COLS;c++){const b=document.createElement('button');b.className='drop';b.textContent='↓';b.title='Drop in column '+(c+1);b.setAttribute('aria-label','Drop piece in column '+(c+1));b.disabled=!!winner||grid[0][c]!==0;b.addEventListener('click',()=>play(c));cols.append(b)}
+ for(let c=0;c<COLS;c++){const b=document.createElement('button');b.className='drop';b.textContent='↓';b.title='Drop in column '+(c+1);b.setAttribute('aria-label','Drop piece in column '+(c+1));b.disabled=!!winner||!battleWinnerSelected||grid[0][c]!==0;b.addEventListener('click',()=>play(c));cols.append(b)}
  $('score1').textContent=scores[0];$('score2').textContent=scores[1];
  $('player1').classList.toggle('active',!winner&&current===1);$('player2').classList.toggle('active',!winner&&current===2);
  $('turnDot').style.background=current===1?'var(--red)':'var(--yellow)';
  if(winner===1||winner===2){$('statusText').innerHTML=name(winner)+' WINS!<small>Four in a row. Start a new round when ready.</small>'}
  else if(winner===3){$('statusText').innerHTML='IT’S A DRAW<small>Every space is filled. Start another round.</small>'}
- else $('statusText').innerHTML=name(current)+"'s turn<small>Drop again, or switch players when the battle result changes.</small>";
+ else if(!battleReady) $('statusText').innerHTML='Piece dropped!<small>Start the next battle before choosing another winner.</small>';
+ else if(!battleWinnerSelected) $('statusText').innerHTML='Waiting for battle result<small>Select RED or YELLOW after the next battle, then choose a column.</small>';
+ else $('statusText').innerHTML=name(current)+' won the battle<small>Choose one column to drop this battle’s single piece.</small>';
  $('winnerPanel').classList.toggle('show',!!winner);
  $('winnerTitle').textContent=winner===3?'IT’S A DRAW':winner?name(winner)+' TAKES THE ROUND!':'';
  $('winnerNote').textContent=winner===1||winner===2?'Winner gets the first move next round and chooses the opening column.':'';
  $('newRound').textContent=winner?'Next round':'Restart round';
  $('undo').disabled=history.length===0;
+ $('redWon').disabled=!!winner||!battleReady||battleWinnerSelected;
+ $('yellowWon').disabled=!!winner||!battleReady||battleWinnerSelected;
+ $('nextBattle').disabled=!!winner||battleReady||battleWinnerSelected;
 }
 function getLine(r,c,p,dr,dc){let line=[[r,c]];for(const sign of [-1,1]){let rr=r+dr*sign,cc=c+dc*sign;while(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS&&grid[rr][cc]===p){line.push([rr,cc]);rr+=dr*sign;cc+=dc*sign}}return line}
 function play(c){
- if(winner||grid[0][c]!==0)return;
+ if(winner||!battleWinnerSelected||grid[0][c]!==0)return;
  let r=ROWS-1;while(r>=0&&grid[r][c]!==0)r--;if(r<0)return;
- history.push({r,c,p:current});grid[r][c]=current;
+ history.push({r,c,p:current,battleReady,battleWinnerSelected});grid[r][c]=current;battleReady=false;battleWinnerSelected=false;
  let lines=[[0,1],[1,0],[1,1],[1,-1]].map(([dr,dc])=>getLine(r,c,current,dr,dc));
  let line=lines.find(x=>x.length>=4);
  if(line){winner=current;winningCells=line;scores[current-1]++;roundStarter=current}
  else if(grid.every(row=>row.every(Boolean)))winner=3;
- else current=current;
+ 
  render();
 }
-function startRound(){grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];winner=0;winningCells=[];current=roundStarter;render()}
+function startRound(){grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;render()}
 $('newRound').addEventListener('click',startRound);
-$('undo').addEventListener('click',()=>{if(!history.length)return;const last=history.pop();grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;render()});
-$('switch').addEventListener('click',()=>{if(winner)return;current=current===1?2:1;roundStarter=current;render()});
+$('undo').addEventListener('click',()=>{if(!history.length)return;const last=history.pop();grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;render()});
+$('redWon').addEventListener('click',()=>{if(winner||!battleReady||battleWinnerSelected)return;current=1;battleWinnerSelected=true;render()});
+$('yellowWon').addEventListener('click',()=>{if(winner||!battleReady||battleWinnerSelected)return;current=2;battleWinnerSelected=true;render()});
+$('nextBattle').addEventListener('click',()=>{if(winner||battleReady||battleWinnerSelected)return;battleReady=true;render()});
 $('reset').addEventListener('click',()=>{scores=[0,0];roundStarter=1;startRound()});
 $('name1').addEventListener('input',render);$('name2').addEventListener('input',render);
 render();
