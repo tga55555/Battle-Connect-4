@@ -98,12 +98,30 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 .history-empty{text-align:center;color:#bba9d6;font-size:11px;padding:10px 4px}
 @media(max-width:420px){.battle-history{padding:11px}.history-item{grid-template-columns:58px minmax(0,1fr) auto;gap:6px;padding:8px 7px}.history-drop{font-size:9px}}
 
+
+/* PHASE 1 FINISHING TOUCHES: COUNTDOWN, SPECTATOR CLARITY, DEVICE + STREAM POLISH */
+.top-tools{gap:8px;flex-wrap:wrap}.sound-toggle{min-height:38px}
+.spectator-strip{display:grid;grid-template-columns:1fr;gap:6px;margin:0 0 12px;padding:11px 13px;border:1px solid #8660ad;border-radius:14px;background:linear-gradient(110deg,#291a43,#172b4b);box-shadow:0 6px 16px #07031366}
+.spectator-strip span{display:flex;align-items:center;gap:7px;color:#d8c9ed;font-size:11px}
+.spectator-strip b{color:#fff0a6;font-size:11px;letter-spacing:.02em}
+#startBattle{background:linear-gradient(135deg,#8b5cf6,#5736b8);border-color:#d0b2ff}
+.countdown-overlay{position:fixed;inset:0;z-index:18;display:none;align-items:center;justify-content:center;padding:20px;background:#080516eF;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.countdown-overlay.show{display:flex;animation:victoryFade .2s ease both}
+.countdown-card{text-align:center;width:min(82vw,340px);padding:28px 18px;border:2px solid #c5a1ff;border-radius:26px;background:linear-gradient(145deg,#492568,#172d52);box-shadow:0 0 45px #a56bff99,0 20px 65px #000b}
+.countdown-card small,.countdown-card span{display:block;color:#f4d8ff;font-weight:1000;letter-spacing:.2em}
+.countdown-card strong{display:block;margin:5px 0;font-size:clamp(100px,28vw,150px);line-height:1;color:#ffe27a;text-shadow:0 0 28px #ffcf6b88;animation:crownBounce .5s ease-in-out infinite alternate}
+.countdown-card span{font-size:13px}
+@media(min-width:600px){.app{width:min(100%,760px)}.spectator-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:12px 15px}.spectator-strip span{justify-content:center}.board-wrap{padding:17px}.board{gap:10px;padding:13px}.columns{gap:10px;padding:0 13px}.drop{min-height:48px;font-size:20px}.btn{font-size:14px;min-height:50px}.player{padding:15px}.score{font-size:34px}}
+@media(min-width:900px){body{padding:18px 24px}.app{width:min(100%,900px)}header{margin-bottom:16px}.scoreboard{max-width:700px;margin-left:auto;margin-right:auto}.stats{max-width:700px;margin-left:auto;margin-right:auto}.battle-history{max-width:700px;margin-left:auto;margin-right:auto}.status{max-width:700px;margin-left:auto;margin-right:auto}.board-wrap{max-width:700px;margin-left:auto;margin-right:auto}.actions{max-width:700px;margin-left:auto;margin-right:auto}.helper{max-width:680px;margin-left:auto;margin-right:auto}}
+@media(orientation:landscape) and (max-height:600px){body{padding:8px}.app{width:min(100%,920px)}header{padding:9px;margin:0 0 8px}header:before{display:none}h1{font-size:30px;margin:4px}.sub{font-size:11px}.scoreboard{margin-bottom:7px}.stats{margin-bottom:7px}.battle-history{margin-bottom:7px}.history-list{max-height:90px}.board-wrap{padding:7px}.board{gap:4px;padding:6px}.columns{margin-top:5px}.drop{min-height:30px;padding:4px}.actions{margin-top:7px}.btn{min-height:36px;padding:7px}.helper{margin-top:6px}.footer{margin-top:7px}}
+@media(prefers-reduced-motion:reduce){.countdown-card strong{animation:none!important}}
+
 </style>
 </head>
 <body>
 <main class="app">
 <header><div class="eyebrow">Live stream battle game</div><h1>BATTLE <span>CONNECT 4</span></h1><p class="sub">Battle results decide who drops. Four in a row wins.</p></header>
-<div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Sound on</button></div>
+<div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Effects on</button><button class="sound-toggle" id="musicToggle" aria-pressed="false">🎵 Victory music on</button></div>
 <section class="scoreboard" aria-label="Players and scores">
 <div class="player active" id="player1"><div><i class="dot" style="background:var(--red)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 1</span></div><input id="name1" value="RED TEAM" maxlength="16" aria-label="Player 1 name"><div class="score" id="score1">0</div></div>
 <div class="vs">VS</div>
@@ -114,6 +132,7 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
  <div class="history-heading"><strong>⚔️ BATTLE HISTORY</strong><span id="historySummary">No battles yet</span></div>
  <ol class="history-list" id="historyList"><li class="history-empty">Battle results will appear here</li></ol>
 </section>
+<div class="countdown-overlay" id="countdownOverlay" aria-live="assertive" aria-hidden="true"><div class="countdown-card"><small>NEXT BATTLE</small><strong id="countdownNumber">3</strong><span>GET READY!</span></div></div>
 <div class="announcement" id="announcement" aria-live="assertive"><strong id="announcementTitle"></strong><small id="announcementSub">ONE DROP EARNED</small></div>
 <div class="victory-overlay" id="victoryOverlay" role="dialog" aria-modal="true" aria-labelledby="victoryTitle">
  <div class="victory-card">
@@ -125,12 +144,13 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
   <button class="victory-next" id="victoryNext">NEXT ROUND</button>
  </div>
 </div>
+<div class="spectator-strip" aria-label="Battle instructions"><span>⚔️ <b id="spectatorPhase">READY TO START</b></span><span>🎯 <b id="spectatorNext">Next drop: waiting for battle</b></span><span>🔥 <b id="spectatorStreak">No streak yet</b></span></div>
 <div class="status" role="status" aria-live="polite"><span class="status-dot" id="turnDot"></span><p id="statusText">RED TEAM's turn<small>Drop again, or switch players when the battle result changes.</small></p></div>
 <section class="board-wrap" aria-label="Connect four game board">
 <div class="board" id="board"></div><div class="columns" id="columns" aria-label="Choose a column"></div>
 </section>
 <div class="winner-panel" id="winnerPanel"><strong id="winnerTitle"></strong><p id="winnerNote"></p></div>
-<div class="actions"><button class="btn" id="redWon">RED WON — drop 1</button><button class="btn" id="yellowWon">YELLOW WON — drop 1</button><button class="btn" id="nextBattle" disabled>Next battle</button><button class="btn" id="undo">Undo last drop</button><button class="btn primary" id="newRound">New round</button><button class="btn" id="reset">Reset scores & game</button></div>
+<div class="actions"><button class="btn" id="redWon">RED WON — drop 1</button><button class="btn" id="yellowWon">YELLOW WON — drop 1</button><button class="btn" id="startBattle">Start battle · 3-2-1</button><button class="btn" id="nextBattle" disabled>Next battle · 3-2-1</button><button class="btn" id="undo">Undo last drop</button><button class="btn primary" id="newRound">New round</button><button class="btn" id="reset">Reset scores & game</button></div>
 <p class="helper">Choose the winner of each battle, then choose a column to drop exactly one piece. Start the next battle before recording another result. The same player can win consecutive battles and drop consecutive pieces. The round winner starts the next round.</p>
 <div class="footer">BATTLE CONNECT 4 · STREAM OVERLAY FRIENDLY</div>
 </main>
@@ -140,12 +160,16 @@ const ROWS=6,COLS=7;
 let grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
 let current=1,winner=0,winningCells=[],scores=[0,0],history=[],roundStarter=1,battleReady=true,battleWinnerSelected=false;
 let battleCount=0,streakPlayer=0,streakCount=0,bestStreak=0,pendingSnapshot=null,soundEnabled=true,audioContext=null,lastPiece=null,battleLog=[];
-let roundBattleCount=0,roundDrops=[0,0];
+let roundBattleCount=0,roundDrops=[0,0],effectsEnabled=true,musicEnabled=true,countdownReady=false,countdownActive=false,countdownTimer=null,restoring=false;
 const $=id=>document.getElementById(id);
 const name=n=>($('name'+n).value.trim()||('PLAYER '+n));
-function playTone(freq=520,duration=.13,type='sine'){if(!soundEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();if(audioContext.state==='suspended')audioContext.resume();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audioContext.currentTime);gain.gain.setValueAtTime(.0001,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.12,audioContext.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+duration)}catch(e){}}
+function playTone(freq=520,duration=.13,type='sine',channel='effects'){if(channel==='music'?!musicEnabled:!effectsEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();if(audioContext.state==='suspended')audioContext.resume();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audioContext.currentTime);gain.gain.setValueAtTime(.0001,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.12,audioContext.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+duration)}catch(e){}}
+function startBattleCountdown(){if(winner||!battleReady||battleWinnerSelected||countdownReady||countdownActive)return;countdownActive=true;const overlay=$('countdownOverlay'),number=$('countdownNumber');overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');let count=3;number.textContent=count;playTone(520,.12,'triangle');render();countdownTimer=setInterval(()=>{count--;if(count>0){number.textContent=count;playTone(520,.12,'triangle')}else{clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;countdownReady=true;number.textContent='GO!';playTone(880,.22,'triangle');setTimeout(()=>{overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');render()},650)}},850)}
 function announceBattle(p){const el=$('announcement');el.className='announcement show '+(p===1?'red-ann':'yellow-ann');$('announcementTitle').textContent=name(p)+' WINS!';$('announcementSub').textContent='ONE DROP EARNED';playTone(p===1?660:520,.22,'triangle');setTimeout(()=>{el.className='announcement'},1050)}
-function celebrate(p){const overlay=$('victoryOverlay');overlay.className='victory-overlay show '+(p===1?'victory-red':'victory-yellow');$('victoryTitle').textContent=name(p)+' WINS!';$('victoryStats').innerHTML='<div class="victory-stat"><b>'+roundBattleCount+'</b><span>Battles played</span></div><div class="victory-stat"><b>'+roundDrops[0]+' – '+roundDrops[1]+'</b><span>Red – Yellow drops</span></div><div class="victory-stat"><b>'+(p===1?roundDrops[0]:roundDrops[1])+'</b><span>Winner drops</span></div>';$('victoryNext').focus({preventScroll:true});playTone(660,.18,'triangle');setTimeout(()=>playTone(830,.2,'triangle'),130);setTimeout(()=>playTone(990,.32,'triangle'),270);setTimeout(()=>playTone(1320,.42,'triangle'),430);for(let i=0;i<100;i++){const bit=document.createElement('i');bit.className='confetti';bit.style.left=(Math.random()*100)+'vw';bit.style.background=['#ff5268','#ffd34e','#587dff','#ffffff','#6ee7b7','#e879f9'][i%6];bit.style.animationDelay=(Math.random()*.55)+'s';bit.style.transform='rotate('+Math.random()*360+'deg)';document.body.append(bit);setTimeout(()=>bit.remove(),3300)}}
+function playVictoryMusic(){[[660,.18],[830,.2],[990,.32],[1320,.42]].forEach(([freq,duration],i)=>setTimeout(()=>playTone(freq,duration,'triangle','music'),i*145))}
+function celebrate(p){const overlay=$('victoryOverlay');overlay.className='victory-overlay show '+(p===1?'victory-red':'victory-yellow');$('victoryTitle').textContent=name(p)+' WINS!';$('victoryStats').innerHTML='<div class="victory-stat"><b>'+roundBattleCount+'</b><span>Battles played</span></div><div class="victory-stat"><b>'+roundDrops[0]+' – '+roundDrops[1]+'</b><span>Red – Yellow drops</span></div><div class="victory-stat"><b>'+(p===1?roundDrops[0]:roundDrops[1])+'</b><span>Winner drops</span></div>';$('victoryNext').focus({preventScroll:true});playTone(660,.18,'triangle');playVictoryMusic();for(let i=0;i<100;i++){const bit=document.createElement('i');bit.className='confetti';bit.style.left=(Math.random()*100)+'vw';bit.style.background=['#ff5268','#ffd34e','#587dff','#ffffff','#6ee7b7','#e879f9'][i%6];bit.style.animationDelay=(Math.random()*.55)+'s';bit.style.transform='rotate('+Math.random()*360+'deg)';document.body.append(bit);setTimeout(()=>bit.remove(),3300)}}
+function saveGame(){if(restoring)return;try{const data={version:1,grid,current,winner,winningCells,scores,history,roundStarter,battleReady,battleWinnerSelected,battleCount,streakPlayer,streakCount,bestStreak,battleLog,roundBattleCount,roundDrops,effectsEnabled,musicEnabled,name1:$('name1').value,name2:$('name2').value};localStorage.setItem('battleConnect4Save',JSON.stringify(data))}catch(e){console.warn('Could not save game state',e)}}
+function loadSavedGame(){try{const raw=localStorage.getItem('battleConnect4Save');if(!raw)return;const d=JSON.parse(raw);if(!d||d.version!==1||!Array.isArray(d.grid)||d.grid.length!==ROWS||!d.grid.every(row=>Array.isArray(row)&&row.length===COLS))return;restoring=true;grid=d.grid;current=d.current===2?2:1;winner=[0,1,2,3].includes(d.winner)?d.winner:0;winningCells=Array.isArray(d.winningCells)?d.winningCells:[];scores=Array.isArray(d.scores)&&d.scores.length===2?d.scores:[0,0];history=Array.isArray(d.history)?d.history:[];roundStarter=d.roundStarter===2?2:1;battleReady=!!d.battleReady;battleWinnerSelected=!!d.battleWinnerSelected;battleCount=Number(d.battleCount)||0;streakPlayer=d.streakPlayer===1||d.streakPlayer===2?d.streakPlayer:0;streakCount=Number(d.streakCount)||0;bestStreak=Number(d.bestStreak)||0;battleLog=Array.isArray(d.battleLog)?d.battleLog:[];roundBattleCount=Number(d.roundBattleCount)||0;roundDrops=Array.isArray(d.roundDrops)&&d.roundDrops.length===2?d.roundDrops:[0,0];effectsEnabled=d.effectsEnabled!==false;musicEnabled=d.musicEnabled!==false;$('name1').value=typeof d.name1==='string'?d.name1:'RED TEAM';$('name2').value=typeof d.name2==='string'?d.name2:'YELLOW TEAM';countdownReady=false;if(battleWinnerSelected){battleWinnerSelected=false;battleReady=true} }catch(e){console.warn('Could not restore saved game',e)}finally{restoring=false}}
 function render(){
  const board=$('board'),cols=$('columns');board.innerHTML='';cols.innerHTML='';
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
@@ -162,28 +186,32 @@ function render(){
  else{battleLog.slice(-8).reverse().forEach(entry=>{const item=document.createElement('li');item.className='history-item';const number=document.createElement('span');number.className='history-number';number.textContent='BATTLE '+entry.number;const who=document.createElement('span');who.className='history-winner '+(entry.player===1?'red-text':'yellow-text');who.textContent=name(entry.player)+' WON';const drop=document.createElement('span');drop.className='history-drop';drop.textContent=entry.column?'Column '+entry.column:'Drop pending';item.append(number,who,drop);historyList.append(item)})}
  $('streakCount').className=streakPlayer===1?'streak-red':streakPlayer===2?'streak-yellow':'';
  $('streakLabel').textContent=streakPlayer?(name(streakPlayer)+' streak'):'Current streak';
- $('soundToggle').textContent=soundEnabled?'🔊 Sound on':'🔇 Sound off';$('soundToggle').setAttribute('aria-pressed',String(!soundEnabled));
+ $('soundToggle').textContent=effectsEnabled?'🔊 Effects on':'🔇 Effects off';$('soundToggle').setAttribute('aria-pressed',String(!effectsEnabled));$('musicToggle').textContent=musicEnabled?'🎵 Victory music on':'🎵 Victory music off';$('musicToggle').setAttribute('aria-pressed',String(!musicEnabled));
+ $('startBattle').disabled=!!winner||!battleReady||battleWinnerSelected||countdownReady||countdownActive;$('startBattle').textContent=countdownActive?'Battle starting…':countdownReady?'Battle ready ✓':'Start battle · 3-2-1';$('nextBattle').textContent=countdownActive?'Battle starting…':'Next battle · 3-2-1';
+ $('spectatorPhase').textContent=winner?'ROUND FINISHED':countdownActive?'BATTLE COUNTDOWN':countdownReady?'BATTLE RESULT NEEDED':battleWinnerSelected?'DROP THE WINNER’S PIECE':battleReady?'READY FOR NEXT BATTLE':'WAITING FOR NEXT BATTLE';$('spectatorNext').textContent=winner?'Next round':battleWinnerSelected?'Drop 1 piece in any column':countdownReady?'Winner earns exactly 1 drop':'Next drop: waiting for battle result';$('spectatorStreak').textContent=streakPlayer?name(streakPlayer)+' · '+streakCount+' in a row':'No streak yet';
  $('player1').classList.toggle('active',!winner&&current===1);$('player2').classList.toggle('active',!winner&&current===2);
  $('turnDot').style.background=current===1?'var(--red)':'var(--yellow)';
  if(winner===1||winner===2){$('statusText').innerHTML=name(winner)+' WINS!<small>Four in a row. Start a new round when ready.</small>'}
  else if(winner===3){$('statusText').innerHTML='IT’S A DRAW<small>Every space is filled. Start another round.</small>'}
  else if(!battleReady) $('statusText').innerHTML='Piece dropped!<small>Start the next battle before choosing another winner.</small>';
- else if(!battleWinnerSelected) $('statusText').innerHTML='Waiting for battle result<small>Select RED or YELLOW after the next battle, then choose a column.</small>';
+ else if(!countdownReady) $('statusText').innerHTML='Ready to start the battle<small>Start the 3-second countdown before recording its winner.</small>';
+ else if(!battleWinnerSelected) $('statusText').innerHTML='Waiting for battle result<small>Select the winner, then award exactly one drop.</small>';
  else $('statusText').innerHTML=name(current)+' won the battle<small>Choose one column to drop this battle’s single piece.</small>';
  $('winnerPanel').classList.toggle('show',!!winner);
  $('winnerTitle').textContent=winner===3?'IT’S A DRAW':winner?name(winner)+' TAKES THE ROUND!':'';
  $('winnerNote').textContent=winner===1||winner===2?'Winner gets the first move next round and chooses the opening column.':'';
  $('newRound').textContent=winner?'Next round':'Restart round';
  $('undo').disabled=history.length===0;
- $('redWon').disabled=!!winner||!battleReady||battleWinnerSelected;
- $('yellowWon').disabled=!!winner||!battleReady||battleWinnerSelected;
+ $('redWon').disabled=!!winner||!battleReady||battleWinnerSelected||!countdownReady;
+ $('yellowWon').disabled=!!winner||!battleReady||battleWinnerSelected||!countdownReady;
  $('nextBattle').disabled=!!winner||battleReady||battleWinnerSelected;
+ saveGame();
 }
 function getLine(r,c,p,dr,dc){let line=[[r,c]];for(const sign of [-1,1]){let rr=r+dr*sign,cc=c+dc*sign;while(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS&&grid[rr][cc]===p){line.push([rr,cc]);rr+=dr*sign;cc+=dc*sign}}return line}
 function play(c){
  if(winner||!battleWinnerSelected||grid[0][c]!==0)return;
  let r=ROWS-1;while(r>=0&&grid[r][c]!==0)r--;if(r<0)return;
- history.push({r,c,p:current,battleReady,battleWinnerSelected,streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount,battleLogLength:pendingSnapshot?.battleLogLength??battleLog.length,roundBattleCount,roundDrops:[...roundDrops]});if(battleLog.length)battleLog[battleLog.length-1].column=c+1;grid[r][c]=current;roundDrops[current-1]++;battleReady=false;battleWinnerSelected=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
+ history.push({r,c,p:current,battleReady,battleWinnerSelected,countdownReady,streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount,battleLogLength:pendingSnapshot?.battleLogLength??battleLog.length,roundBattleCount,roundDrops:[...roundDrops]});if(battleLog.length)battleLog[battleLog.length-1].column=c+1;grid[r][c]=current;roundDrops[current-1]++;battleReady=false;battleWinnerSelected=false;countdownReady=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
  let lines=[[0,1],[1,0],[1,1],[1,-1]].map(([dr,dc])=>getLine(r,c,current,dr,dc));
  let line=lines.find(x=>x.length>=4);
  if(line){winner=current;winningCells=line;scores[current-1]++;roundStarter=current;setTimeout(()=>celebrate(current),220)}
@@ -191,18 +219,19 @@ function play(c){
  
  render();
 }
-function selectBattleWinner(p){if(winner||!battleReady||battleWinnerSelected)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount,battleLogLength:battleLog.length,roundBattleCount,roundDrops:[...roundDrops]};current=p;battleWinnerSelected=true;battleCount++;roundBattleCount++;battleLog.push({number:battleCount,player:p,column:null});if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p);render()}
-function startRound(){$('victoryOverlay').className='victory-overlay';grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];roundBattleCount=0;roundDrops=[0,0];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;pendingSnapshot=null;render()}
+function selectBattleWinner(p){if(winner||!battleReady||battleWinnerSelected||!countdownReady)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount,battleLogLength:battleLog.length,roundBattleCount,roundDrops:[...roundDrops]};current=p;battleWinnerSelected=true;countdownReady=false;battleCount++;roundBattleCount++;battleLog.push({number:battleCount,player:p,column:null});if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p);render()}
+function startRound(){if(countdownTimer)clearInterval(countdownTimer);countdownActive=false;countdownReady=false;$('countdownOverlay').classList.remove('show');$('victoryOverlay').className='victory-overlay';grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];roundBattleCount=0;roundDrops=[0,0];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;pendingSnapshot=null;render()}
 $('newRound').addEventListener('click',startRound);
 $('victoryNext').addEventListener('click',startRound);
-$('undo').addEventListener('click',()=>{if(!history.length)return;$('victoryOverlay').className='victory-overlay';const last=history.pop();battleLog.length=last.battleLogLength;grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;streakPlayer=last.streakPlayer;streakCount=last.streakCount;bestStreak=last.bestStreak;battleCount=last.battleCount;roundBattleCount=last.roundBattleCount;roundDrops=[...last.roundDrops];pendingSnapshot=null;render()});
+$('undo').addEventListener('click',()=>{if(!history.length)return;$('victoryOverlay').className='victory-overlay';const last=history.pop();battleLog.length=last.battleLogLength;grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;countdownReady=last.countdownReady;streakPlayer=last.streakPlayer;streakCount=last.streakCount;bestStreak=last.bestStreak;battleCount=last.battleCount;roundBattleCount=last.roundBattleCount;roundDrops=[...last.roundDrops];pendingSnapshot=null;render()});
 $('redWon').addEventListener('click',()=>selectBattleWinner(1));
 $('yellowWon').addEventListener('click',()=>selectBattleWinner(2));
-$('nextBattle').addEventListener('click',()=>{if(winner||battleReady||battleWinnerSelected)return;battleReady=true;render()});
+$('nextBattle').addEventListener('click',()=>{if(winner||battleReady||battleWinnerSelected||countdownActive)return;battleReady=true;countdownReady=false;render();startBattleCountdown()});
+$('startBattle').addEventListener('click',startBattleCountdown);
 $('reset').addEventListener('click',()=>{scores=[0,0];battleLog=[];roundStarter=1;battleCount=0;streakPlayer=0;streakCount=0;bestStreak=0;pendingSnapshot=null;startRound()});
-$('soundToggle').addEventListener('click',()=>{soundEnabled=!soundEnabled;if(soundEnabled)playTone(600,.1);render()});
+$('soundToggle').addEventListener('click',()=>{effectsEnabled=!effectsEnabled;if(effectsEnabled)playTone(600,.1);render()});$('musicToggle').addEventListener('click',()=>{musicEnabled=!musicEnabled;if(musicEnabled)playTone(740,.12,'triangle','music');render()});
 $('name1').addEventListener('input',render);$('name2').addEventListener('input',render);
-render();
+loadSavedGame();render();
 })();
 </script>
 </body></html>
