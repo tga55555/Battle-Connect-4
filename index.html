@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101322">
-<title>Connect Smoke | Battle Connect 4</title>
+<title>Smoke After Dark | Connect Smoke Battle Connect 4</title>
 <style>
 :root{color-scheme:dark;--bg:#101322;--panel:#1a2035;--panel2:#242d49;--muted:#aab3ce;--red:#ff5268;--yellow:#ffd34e;--blue:#587dff;--line:#354263}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#29365c 0,#101322 58%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#f7f8ff;display:flex;justify-content:center;padding:22px 14px 36px}
@@ -334,12 +334,58 @@ body{
   .logo-header{width:calc(100% + 48px)!important;margin:0 -24px 20px!important}
 }
 
+
+/* SMOKE AFTER DARK title + clear separation between logo and game */
+.logo-header{
+  position:relative!important;
+  z-index:2!important;
+  text-align:center!important;
+  margin-bottom:clamp(18px,3vw,30px)!important;
+}
+.logo-header .brand-title{
+  display:block;
+  width:100%;
+  margin:0 auto clamp(8px,1.5vw,16px);
+  padding:clamp(8px,1.8vw,16px) 10px 0;
+  color:#f5f3ff;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;
+  font-size:clamp(30px,8.2vw,66px);
+  font-weight:1000;
+  font-style:italic;
+  line-height:.92;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+  background:linear-gradient(180deg,#ffffff 0%,#c9dfff 24%,#7f9dce 43%,#f8eaff 55%,#a65cff 78%,#45236f 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 0 #17102c) drop-shadow(0 0 9px #258cff) drop-shadow(0 0 17px #a33cff);
+}
+.logo-header .site-logo{
+  position:relative!important;
+  z-index:1!important;
+}
+.app{
+  position:relative!important;
+  isolation:isolate;
+}
+.app > :not(.logo-header){
+  position:relative;
+  z-index:1;
+}
+.player,.battle-score-card,.stats .stat,.battle-history,.status,.board-wrap,.actions,.operator-panel{
+  background-color:rgba(22,17,48,.88);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+
 </style>
 </head>
 <body>
 <div class="smoke-fx" aria-hidden="true"><canvas id="smokeCanvas"></canvas></div>
 <main class="app">
-<header class="logo-header"><img class="site-logo" src="IMG_7443.jpeg" alt="CONNECT SMOKE full-length logo and smoke artwork"><p class="sub brand-tagline">Battle results decide who drops · Four in a row wins.</p></header>
+<header class="logo-header"><div class="brand-title">Smoke After Dark</div><img class="site-logo" src="IMG_7443.jpeg" alt="CONNECT SMOKE full-length logo and smoke artwork"><p class="sub brand-tagline">Battle results decide who drops · Four in a row wins.</p></header>
 <div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Effects on</button><button class="sound-toggle" id="musicToggle" aria-pressed="false">🎵 Victory music on</button><a class="stream-toggle" id="streamToggle" href="stream.html" target="_blank" rel="noopener">📺 OPEN STREAM DISPLAY ↗</a></div>
 <section class="scoreboard" aria-label="Players and scores">
 <div class="player active" id="player1"><div><i class="dot" style="background:var(--red)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 1</span></div><input id="name1" value="RED TEAM" maxlength="16" aria-label="Player 1 name"><div class="score" id="score1">0</div></div>
