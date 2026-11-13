@@ -54,7 +54,7 @@ function render(){
  $('turnDot').style.background=current===1?'var(--red)':'var(--yellow)';
  if(winner===1||winner===2){$('statusText').innerHTML=name(winner)+' WINS!<small>Four in a row. Start a new round when ready.</small>'}
  else if(winner===3){$('statusText').innerHTML='IT’S A DRAW<small>Every space is filled. Start another round.</small>'}
- else $('statusText').innerHTML=name(current)+"'s turn<small>Choose a column to drop your piece.</small>";
+ else $('statusText').innerHTML=name(current)+"'s turn<small>Drop again, or switch players when the battle result changes.</small>";
  $('winnerPanel').classList.toggle('show',!!winner);
  $('winnerTitle').textContent=winner===3?'IT’S A DRAW':winner?name(winner)+' TAKES THE ROUND!':'';
  $('winnerNote').textContent=winner===1||winner===2?'Winner gets the first move next round and chooses the opening column.':'';
