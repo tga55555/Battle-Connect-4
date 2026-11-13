@@ -163,69 +163,93 @@ window.addEventListener('storage',e=>{if(e.key===key&&e.newValue){try{accept(JSO
  if(!canvas)return;
  const ctx=canvas.getContext('2d',{alpha:true});
  if(!ctx)return;
- let w=0,h=0,dpr=1,last=0,elapsed=0,particles=[];
- const palette=[[174,126,225],[205,105,191],[127,135,225],[225,145,197],[142,155,211]];
- let seed=17;
- function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
- function makeParticle(initial){
-  const source=[.12,.5,.88][Math.floor(rnd()*3)],life=7+rnd()*7;
-  return {x:w*source+(rnd()-.5)*w*.13,y:initial?h*(.22+rnd()*.9):h+30+rnd()*90,
-   age:initial?rnd()*life:0,life,base:18+rnd()*34,stretch:1.2+rnd()*1.9,
-   vx:(rnd()-.5)*13,vy:-(17+rnd()*24),phase:rnd()*6.28,swirl:10+rnd()*30,
-   hue:palette[Math.floor(rnd()*palette.length)],opacity:.09+rnd()*.11};
+ let w=0,h=0,dpr=1,last=0,clock=0,smoke=[];
+ const tones=[[185,151,220],[155,151,202],[213,139,190],[139,157,211],[197,177,220]];
+ let seed=9381;
+ const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ function spawn(initial=false){
+  const edge=rand();
+  const x=edge<.22?w*(.04+rand()*.22):edge<.44?w*(.74+rand()*.22):w*(.12+rand()*.76);
+  const life=10+rand()*9;
+  const scale=.72+rand()*.8;
+  return {x,y:initial?h*(.15+rand()*.95):h+80+rand()*100,age:initial?rand()*life:0,life,
+   size:(75+rand()*95)*Math.min(1.2,w/390),scale,
+   vx:(rand()-.5)*17,vy:-(17+rand()*22),phase:rand()*6.28,
+   sway:12+rand()*36,turn:(rand()-.5)*.55,tone:tones[Math.floor(rand()*tones.length)],
+   alpha:.19+rand()*.12,seed:rand()*1000};
  }
  function resize(){
-  dpr=Math.min(window.devicePixelRatio||1,1.5);w=window.innerWidth;h=window.innerHeight;
+  dpr=Math.min(window.devicePixelRatio||1,1.5);w=innerWidth;h=innerHeight;
   canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);particles=[];
-  for(let i=0;i<58;i++)particles.push(makeParticle(true));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  smoke=[];for(let i=0;i<34;i++)smoke.push(spawn(true));
  }
- function cloud(x,y,r,color,alpha,aspect,rotation){
-  ctx.save();ctx.translate(x,y);ctx.rotate(rotation);ctx.scale(1,aspect);
-  const g=ctx.createRadialGradient(-r*.12,-r*.12,r*.02,0,0,r);
-  g.addColorStop(0,'rgba('+color.join(',')+','+(alpha*.8)+')');
-  g.addColorStop(.32,'rgba('+color.join(',')+','+(alpha*.48)+')');
-  g.addColorStop(.68,'rgba('+color.join(',')+','+(alpha*.13)+')');
+ function puff(x,y,rx,ry,color,alpha,rot){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(1,ry/rx);
+  const g=ctx.createRadialGradient(-rx*.16,-rx*.12,rx*.025,0,0,rx);
+  g.addColorStop(0,'rgba('+color.join(',')+','+(alpha*.9)+')');
+  g.addColorStop(.22,'rgba('+color.join(',')+','+(alpha*.72)+')');
+  g.addColorStop(.48,'rgba('+color.join(',')+','+(alpha*.34)+')');
+  g.addColorStop(.76,'rgba('+color.join(',')+','+(alpha*.1)+')');
   g.addColorStop(1,'rgba('+color.join(',')+',0)');
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();ctx.restore();
  }
- function renderParticle(p){
-  const life=p.age/p.life,fade=Math.min(1,p.age/.8,Math.max(0,(1-life)*3.2));
-  const swell=.55+life*.95,sway=Math.sin(elapsed*.7+p.phase+p.age*.55)*p.swirl;
-  const x=p.x+sway,y=p.y,r=p.base*swell,a=p.opacity*fade;
-  ctx.filter='blur(13px)';
-  cloud(x,y,r*1.45,p.hue,a*.72,p.stretch*.72,p.phase);
-  cloud(x-r*.48,y-r*.12,r*.92,p.hue,a*.62,p.stretch*.78,-.34+p.phase*.12);
-  cloud(x+r*.42,y-r*.28,r*1.02,p.hue,a*.52,p.stretch*.84,.42+p.phase*.1);
-  cloud(x-r*.12,y-r*.7,r*.72,p.hue,a*.38,p.stretch*.92,-.2);
-  ctx.filter='blur(5px)';
+ function render(p){
+  const q=p.age/p.life;
+  const fade=Math.min(1,p.age/1.2,Math.max(0,(1-q)*2.8));
+  const turbulence=Math.sin(clock*.42+p.phase+p.age*.48);
+  const x=p.x+Math.sin(clock*.34+p.phase)*p.sway+turbulence*13;
+  const y=p.y;
+  const grow=.48+q*1.15;
+  const r=p.size*grow;
+  const a=p.alpha*fade;
+  const col=p.tone;
+  // Broad, overlapping soft volumes create the dense body of each smoke billow.
+  ctx.filter='blur(17px)';
+  puff(x,y,r*1.25,r*.9,col,a*.68,p.turn);
+  puff(x-r*.52,y-r*.14,r*.82,r*.72,col,a*.76,p.turn-.38);
+  puff(x+r*.48,y-r*.22,r*.9,r*.78,col,a*.7,p.turn+.32);
+  puff(x-r*.18,y-r*.62,r*.7,r*.88,col,a*.58,p.turn-.18);
+  puff(x+r*.32,y-r*.7,r*.64,r*.9,col,a*.54,p.turn+.24);
+  puff(x+r*.03,y+r*.36,r*.95,r*.66,col,a*.42,p.turn+.1);
+  // Smaller, offset lobes break the silhouette into organic cauliflower-like edges.
+  ctx.filter='blur(9px)';
+  for(let k=0;k<5;k++){
+   const ang=(Math.PI*2*k/5)+p.phase;
+   const ox=Math.cos(ang)*r*(.52+.08*Math.sin(clock*.8+k+p.seed));
+   const oy=Math.sin(ang)*r*.48;
+   puff(x+ox,y+oy,r*(.28+.08*Math.sin(k*2+p.seed)),r*(.34+.07*Math.cos(k+p.seed)),col,a*.34,p.turn+ang*.2);
+  }
+  // Fine tendrils curl off the upper edge and dissolve into the background.
+  ctx.filter='blur(3.5px)';
   for(let k=0;k<3;k++){
-   const side=k-1,sx=x+side*r*.38,sy=y-r*.25,length=r*(1.5+k*.22);
-   const sway2=Math.sin(elapsed*1.1+p.phase+k)*r*.38;
-   const grad=ctx.createLinearGradient(sx,sy,sx+sway2,sy-length);
-   grad.addColorStop(0,'rgba('+p.hue.join(',')+','+(a*.8)+')');
-   grad.addColorStop(.55,'rgba('+p.hue.join(',')+','+(a*.32)+')');
-   grad.addColorStop(1,'rgba('+p.hue.join(',')+',0)');
-   ctx.strokeStyle=grad;ctx.lineWidth=2.5+k*1.7;ctx.lineCap='round';
+   const side=k-1, sx=x+side*r*.28, sy=y-r*.5;
+   const curl=Math.sin(clock*.65+p.phase+k*1.7)*r*.34;
+   const rise=r*(1.25+k*.24);
+   const grad=ctx.createLinearGradient(sx,sy,sx+curl,sy-rise);
+   grad.addColorStop(0,'rgba('+col.join(',')+','+(a*.5)+')');
+   grad.addColorStop(.38,'rgba('+col.join(',')+','+(a*.23)+')');
+   grad.addColorStop(1,'rgba('+col.join(',')+',0)');
+   ctx.strokeStyle=grad;ctx.lineWidth=3.5+k*2.2;ctx.lineCap='round';
    ctx.beginPath();ctx.moveTo(sx,sy);
-   ctx.bezierCurveTo(sx-side*r*.75,sy-length*.25,sx+sway2-side*r*.45,sy-length*.72,sx+sway2,sy-length);
+   ctx.bezierCurveTo(sx-side*r*.65,sy-rise*.32,sx+curl+side*r*.45,sy-rise*.72,sx+curl,sy-rise);
    ctx.stroke();
   }
   ctx.filter='none';
  }
  function draw(t){
-  if(t-last<30){requestAnimationFrame(draw);return}
-  const dt=Math.min((t-last)/1000,.05);last=t;elapsed+=dt;
+  if(t-last<28){requestAnimationFrame(draw);return}
+  const dt=Math.min((t-last)/1000,.045);last=t;clock+=dt;
   ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='screen';
-  for(let i=particles.length-1;i>=0;i--){
-   const p=particles[i];p.age+=dt;
-   const turbulence=Math.sin(elapsed*.85+p.phase+p.age*.8);
-   p.x+=(p.vx+turbulence*8)*dt;p.y+=p.vy*dt;
-   p.vx+=Math.sin(elapsed*.4+p.phase)*.8*dt;
-   if(p.age>=p.life||p.y < -260){particles.splice(i,1);continue}
-   renderParticle(p);
+  for(let i=smoke.length-1;i>=0;i--){
+   const p=smoke[i];p.age+=dt;
+   p.x+=(p.vx+Math.sin(clock*.32+p.phase)*5)*dt;
+   p.y+=p.vy*dt;
+   p.vx+=Math.sin(clock*.23+p.phase)*.42*dt;
+   if(p.age>=p.life||p.y < -p.size*5){smoke.splice(i,1);continue}
+   render(p);
   }
-  while(particles.length<58)particles.push(makeParticle(false));
+  while(smoke.length<34)smoke.push(spawn(false));
   ctx.globalCompositeOperation='source-over';ctx.filter='none';
   requestAnimationFrame(draw);
  }
