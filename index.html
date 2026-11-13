@@ -119,6 +119,13 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 
 
 .stream-toggle{display:inline-flex;align-items:center;text-decoration:none;border:1px solid #f3d18b;background:linear-gradient(120deg,#68429a,#283d70);color:#fff4d5;border-radius:999px;padding:9px 14px;font-size:11px;font-weight:1000;letter-spacing:.04em;min-height:38px;box-shadow:0 0 16px #b77aff44}
+/* LIVE BATTLE SCOREBOARD UPGRADE */
+.battle-scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center;max-width:700px;margin:-3px auto 13px;padding:10px;border:1px solid #9a70c5;border-radius:16px;background:linear-gradient(110deg,#28183f,#172b4b);box-shadow:0 7px 18px #08031366}
+.battle-score-card{padding:9px 7px;text-align:center;border-radius:12px;background:#ffffff0b;border:1px solid #ffffff1b;min-width:0}.battle-score-card.red-card{border-color:#ff718c66}.battle-score-card.yellow-card{border-color:#ffe17a66}
+.battle-score-card small{display:block;color:#d8c9ed;font-size:9px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase}.battle-score-card strong{display:block;margin-top:3px;font-size:clamp(23px,5vw,32px);font-weight:1000;font-variant-numeric:tabular-nums}.battle-score-card.red-card strong{color:#ff829a}.battle-score-card.yellow-card strong{color:#ffe27a}
+.battle-score-label{font-size:10px;font-weight:1000;letter-spacing:.12em;color:#f3d5ff;text-align:center}
+.battle-result-banner{max-width:700px;margin:0 auto 12px;padding:11px 14px;text-align:center;border:1px solid #a879d5;border-radius:13px;background:linear-gradient(100deg,#3a2057,#1b3154);color:#fff0a6;font-size:clamp(11px,2.5vw,14px);font-weight:1000;letter-spacing:.05em;box-shadow:0 0 18px #a56bff22}.battle-result-banner.red-result{border-color:#ff718c;color:#ff9caf}.battle-result-banner.yellow-result{border-color:#ffe17a;color:#ffe27a}
+@media(max-width:420px){.battle-scoreboard{gap:5px;padding:7px;margin-bottom:10px}.battle-score-card{padding:7px 4px}.battle-score-card small{font-size:8px}.battle-result-banner{padding:9px 7px}}
 </style>
 </head>
 <body>
@@ -130,7 +137,7 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 <div class="vs">VS</div>
 <div class="player" id="player2"><div><i class="dot" style="background:var(--yellow)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 2</span></div><input id="name2" value="YELLOW TEAM" maxlength="16" aria-label="Player 2 name"><div class="score" id="score2">0</div></div>
 </section>
-<section class="stats" aria-label="Battle statistics"><div class="stat"><b id="battleCount">0</b><span>Battles played</span></div><div class="stat"><b id="streakCount">0</b><span id="streakLabel">Current streak</span></div><div class="stat"><b id="bestStreak">0</b><span>Best streak</span></div></section>
+<section class="battle-scoreboard" aria-label="Battle wins scoreboard"><div class="battle-score-card red-card"><small id="battleName1">RED TEAM · BATTLE WINS</small><strong id="battleWins1">0</strong></div><div class="battle-score-label">BATTLE<br>SCORE</div><div class="battle-score-card yellow-card"><small id="battleName2">YELLOW TEAM · BATTLE WINS</small><strong id="battleWins2">0</strong></div></section><div class="battle-result-banner" id="battleResultBanner" role="status" aria-live="polite">BATTLE 1 · READY TO START</div><section class="stats" aria-label="Battle statistics"><div class="stat"><b id="battleCount">0</b><span>Battles played</span></div><div class="stat"><b id="streakCount">0</b><span id="streakLabel">Current streak</span></div><div class="stat"><b id="bestStreak">0</b><span>Best streak</span></div></section>
 <section class="battle-history" aria-label="Battle history">
  <div class="history-heading"><strong>⚔️ BATTLE HISTORY</strong><span id="historySummary">No battles yet</span></div>
  <ol class="history-list" id="historyList"><li class="history-empty">Battle results will appear here</li></ol>
@@ -183,6 +190,16 @@ function render(){
  }
  for(let c=0;c<COLS;c++){const b=document.createElement('button');b.className='drop';b.textContent='↓';b.title='Drop in column '+(c+1);b.setAttribute('aria-label','Drop piece in column '+(c+1));b.disabled=!!winner||!battleWinnerSelected||grid[0][c]!==0;b.addEventListener('click',()=>play(c));cols.append(b)}
  $('score1').textContent=scores[0];$('score2').textContent=scores[1];
+ const redBattleWins=battleLog.filter(entry=>entry.player===1).length,yellowBattleWins=battleLog.filter(entry=>entry.player===2).length;
+ $('battleWins1').textContent=redBattleWins;$('battleWins2').textContent=yellowBattleWins;$('battleName1').textContent=name(1)+' · BATTLE WINS';$('battleName2').textContent=name(2)+' · BATTLE WINS';
+ const banner=$('battleResultBanner');banner.className='battle-result-banner';
+ if(winner===1||winner===2)banner.textContent='🏆 '+name(winner)+' WON THE MATCH!';
+ else if(winner===3)banner.textContent='🤝 MATCH DRAW · START A NEW ROUND';
+ else if(battleWinnerSelected){banner.textContent='⚔️ BATTLE '+battleCount+' · '+name(current)+' WON · 1 DROP EARNED';banner.classList.add(current===1?'red-result':'yellow-result')}
+ else if(!battleReady)banner.textContent='✅ BATTLE '+battleCount+' · DROP COMPLETED · NEXT BATTLE REQUIRED';
+ else if(countdownActive)banner.textContent='⏳ BATTLE '+(battleCount+1)+' · COUNTDOWN';
+ else if(countdownReady)banner.textContent='🎯 BATTLE '+(battleCount+1)+' · WAITING FOR WINNER';
+ else banner.textContent='⚔️ BATTLE '+(battleCount+1)+' · READY TO START';
  $('battleCount').textContent=battleCount;$('streakCount').textContent=streakCount;$('bestStreak').textContent=bestStreak;
  const historyList=$('historyList');historyList.innerHTML='';
  $('historySummary').textContent=battleLog.length?battleLog.length+' battle'+(battleLog.length===1?'':'s'):'No battles yet';
