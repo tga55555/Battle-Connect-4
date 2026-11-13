@@ -116,99 +116,15 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 @media(orientation:landscape) and (max-height:600px){body{padding:8px}.app{width:min(100%,920px)}header{padding:9px;margin:0 0 8px}header:before{display:none}h1{font-size:30px;margin:4px}.sub{font-size:11px}.scoreboard{margin-bottom:7px}.stats{margin-bottom:7px}.battle-history{margin-bottom:7px}.history-list{max-height:90px}.board-wrap{padding:7px}.board{gap:4px;padding:6px}.columns{margin-top:5px}.drop{min-height:30px;padding:4px}.actions{margin-top:7px}.btn{min-height:36px;padding:7px}.helper{margin-top:6px}.footer{margin-top:7px}}
 @media(prefers-reduced-motion:reduce){.countdown-card strong{animation:none!important}}
 
-/* PHASE 2: STREAM VIEW + OPERATOR CONTROLS */
-.stream-toggle{border:1px solid #f3d18b;background:linear-gradient(120deg,#68429a,#283d70);color:#fff4d5;border-radius:999px;padding:9px 14px;font-size:11px;font-weight:1000;letter-spacing:.04em;cursor:pointer;min-height:38px;box-shadow:0 0 16px #b77aff44}
-.operator-panel{margin-top:14px;padding:13px;border:1px solid #a477d0;border-radius:18px;background:linear-gradient(145deg,#28183f,#171b36);box-shadow:0 9px 24px #05020d77}
-.operator-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-.operator-heading strong{font-size:12px;letter-spacing:.14em;color:#ffe7a3}
-.operator-heading span{font-size:10px;color:#cbb9e3;text-align:right}
-.keyboard-hints{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 11px}
-.keyboard-hints span{padding:5px 8px;border:1px solid #6c5489;border-radius:7px;background:#ffffff0b;color:#d9cbed;font-size:10px}
-.keyboard-hints b{color:#fff0a6}
-.stream-exit{display:none;position:fixed;z-index:30;top:12px;right:12px;border:1px solid #ffe28a;border-radius:999px;padding:10px 14px;background:#211638eF;color:#fff1c3;font-size:11px;font-weight:1000;letter-spacing:.06em;box-shadow:0 5px 20px #0008;cursor:pointer}
-.stream-mode{padding:18px 22px 28px}
-.stream-mode .app{width:min(100%,1100px)}
-.stream-mode header{padding:23px 16px 25px;margin-bottom:18px}
-.stream-mode h1{font-size:clamp(42px,7vw,68px)}
-.stream-mode .sub{font-size:16px}
-.stream-mode .top-tools,.stream-mode .operator-panel,.stream-mode .battle-history,.stream-mode .helper,.stream-mode .footer{display:none!important}
-.stream-mode .scoreboard{max-width:100%;gap:18px;margin-bottom:18px}
-.stream-mode .player{padding:18px 14px;border-radius:22px}
-.stream-mode .player input{font-size:clamp(18px,3vw,25px)}
-.stream-mode .score{font-size:clamp(38px,6vw,56px)}
-.stream-mode .vs{font-size:16px}
-.stream-mode .stats{max-width:100%;gap:12px;margin-bottom:16px}
-.stream-mode .stat{padding:14px 8px}
-.stream-mode .stat b{font-size:clamp(25px,4vw,36px)}
-.stream-mode .stat span{font-size:11px}
-.stream-mode .spectator-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:17px;margin-bottom:16px}
-.stream-mode .spectator-strip span{justify-content:center;font-size:14px}
-.stream-mode .spectator-strip b{font-size:clamp(12px,2vw,17px)}
-.stream-mode .status{max-width:100%;padding:18px 20px;min-height:72px;margin-bottom:16px}
-.stream-mode .status p{font-size:clamp(17px,2.8vw,24px);text-align:center}
-.stream-mode .status small{font-size:13px}
-.stream-mode .board-wrap{max-width:100%;padding:clamp(10px,2vw,22px);border-radius:28px}
-.stream-mode .board{gap:clamp(7px,1.25vw,15px);padding:clamp(8px,1.5vw,17px);border-radius:22px}
-.stream-mode .cell{aspect-ratio:1}
-.stream-mode .columns{display:none}
-.stream-mode .stream-exit{display:block}
-.stream-mode .victory-card{width:min(90vw,560px);padding:42px 30px}
-.stream-mode .victory-title{font-size:clamp(40px,8vw,66px)}
-@media(max-width:600px){
- .stream-mode{padding:54px 9px 16px}
- .stream-mode header{padding:15px 8px;margin-bottom:12px}
- .stream-mode header:before{font-size:12px;letter-spacing:10px}
- .stream-mode h1{font-size:clamp(31px,9vw,44px)}
- .stream-mode .sub{font-size:11px}
- .stream-mode .scoreboard{gap:7px;margin-bottom:10px}
- .stream-mode .player{padding:11px 5px;border-radius:14px}
- .stream-mode .player input{font-size:clamp(12px,3.4vw,16px)}
- .stream-mode .score{font-size:clamp(28px,8vw,39px)}
- .stream-mode .vs{font-size:10px}
- .stream-mode .stats{gap:5px;margin-bottom:10px}
- .stream-mode .stat{padding:9px 3px;border-radius:10px}
- .stream-mode .stat b{font-size:22px}
- .stream-mode .stat span{font-size:8px;letter-spacing:.04em}
- .stream-mode .spectator-strip{grid-template-columns:1fr;gap:8px;padding:11px;margin-bottom:10px}
- .stream-mode .spectator-strip span{justify-content:flex-start;font-size:11px}
- .stream-mode .spectator-strip b{font-size:11px}
- .stream-mode .status{padding:11px;margin-bottom:10px;min-height:52px}
- .stream-mode .status p{font-size:14px}
- .stream-mode .status small{font-size:10px}
- .stream-mode .board-wrap{padding:7px;border-radius:16px}
- .stream-mode .board{gap:4px;padding:6px;border-radius:12px}
- .stream-mode .stream-exit{top:8px;right:8px;padding:8px 10px;font-size:9px}
-}
-@media(orientation:landscape) and (max-height:600px){
- .stream-mode{padding:5px 10px}
- .stream-mode header{padding:6px;margin-bottom:7px}
- .stream-mode header:before{display:none}
- .stream-mode h1{font-size:28px;margin:3px}
- .stream-mode .sub{font-size:10px}
- .stream-mode .scoreboard{max-width:600px;margin:0 auto 6px}
- .stream-mode .player{padding:5px}
- .stream-mode .player input{margin-top:2px;font-size:13px}
- .stream-mode .score{font-size:24px;margin-top:0}
- .stream-mode .stats{max-width:600px;margin:0 auto 6px}
- .stream-mode .stat{padding:4px}
- .stream-mode .stat b{font-size:18px}
- .stream-mode .spectator-strip{grid-template-columns:repeat(3,minmax(0,1fr));padding:6px;margin-bottom:6px}
- .stream-mode .spectator-strip span{font-size:9px}
- .stream-mode .spectator-strip b{font-size:9px}
- .stream-mode .status{padding:5px;min-height:36px;margin-bottom:6px}
- .stream-mode .status p{font-size:11px}
- .stream-mode .status small{font-size:8px;margin-top:0}
- .stream-mode .board-wrap{max-width:min(100%,760px);padding:6px}
- .stream-mode .board{max-height:calc(100vh - 205px);gap:4px;padding:5px}
-}
-@media(prefers-reduced-motion:reduce){.stream-toggle{transition:none}}
 
+
+.stream-toggle{display:inline-flex;align-items:center;text-decoration:none;border:1px solid #f3d18b;background:linear-gradient(120deg,#68429a,#283d70);color:#fff4d5;border-radius:999px;padding:9px 14px;font-size:11px;font-weight:1000;letter-spacing:.04em;min-height:38px;box-shadow:0 0 16px #b77aff44}
 </style>
 </head>
 <body>
 <main class="app">
 <header><div class="eyebrow">Live stream battle game</div><h1>BATTLE <span>CONNECT 4</span></h1><p class="sub">Battle results decide who drops. Four in a row wins.</p></header>
-<div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Effects on</button><button class="sound-toggle" id="musicToggle" aria-pressed="false">🎵 Victory music on</button><button class="stream-toggle" id="streamToggle" aria-pressed="false">📺 STREAM VIEW</button></div>
+<div class="top-tools"><button class="sound-toggle" id="soundToggle" aria-pressed="false">🔊 Effects on</button><button class="sound-toggle" id="musicToggle" aria-pressed="false">🎵 Victory music on</button><a class="stream-toggle" id="streamToggle" href="stream.html" target="_blank" rel="noopener">📺 OPEN STREAM DISPLAY ↗</a></div>
 <section class="scoreboard" aria-label="Players and scores">
 <div class="player active" id="player1"><div><i class="dot" style="background:var(--red)"></i><span style="font-size:10px;letter-spacing:.12em;color:#c5cde4">PLAYER 1</span></div><input id="name1" value="RED TEAM" maxlength="16" aria-label="Player 1 name"><div class="score" id="score1">0</div></div>
 <div class="vs">VS</div>
@@ -241,7 +157,6 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 <p class="helper">Choose the winner of each battle, then choose a column to drop exactly one piece. Start the next battle before recording another result. The same player can win consecutive battles and drop consecutive pieces. The round winner starts the next round.</p>
 <div class="footer">BATTLE CONNECT 4 · STREAM OVERLAY FRIENDLY</div>
 </main>
-<button class="stream-exit" id="streamExit" type="button">✕ EXIT STREAM VIEW</button>
 <script>
 (() => {
 const ROWS=6,COLS=7;
@@ -250,13 +165,14 @@ let current=1,winner=0,winningCells=[],scores=[0,0],history=[],roundStarter=1,ba
 let battleCount=0,streakPlayer=0,streakCount=0,bestStreak=0,pendingSnapshot=null,soundEnabled=true,audioContext=null,lastPiece=null,battleLog=[];
 let roundBattleCount=0,roundDrops=[0,0],effectsEnabled=true,musicEnabled=true,countdownReady=false,countdownActive=false,countdownTimer=null,restoring=false;
 const $=id=>document.getElementById(id);
+let syncChannel=null;try{if('BroadcastChannel' in window)syncChannel=new BroadcastChannel('battle-connect4-sync')}catch(e){}
 const name=n=>($('name'+n).value.trim()||('PLAYER '+n));
 function playTone(freq=520,duration=.13,type='sine',channel='effects'){if(channel==='music'?!musicEnabled:!effectsEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();if(audioContext.state==='suspended')audioContext.resume();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audioContext.currentTime);gain.gain.setValueAtTime(.0001,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.12,audioContext.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+duration)}catch(e){}}
 function startBattleCountdown(){if(winner||!battleReady||battleWinnerSelected||countdownReady||countdownActive)return;countdownActive=true;const overlay=$('countdownOverlay'),number=$('countdownNumber');overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');let count=3;number.textContent=count;playTone(520,.12,'triangle');render();countdownTimer=setInterval(()=>{count--;if(count>0){number.textContent=count;playTone(520,.12,'triangle')}else{clearInterval(countdownTimer);countdownTimer=null;countdownActive=false;countdownReady=true;number.textContent='GO!';playTone(880,.22,'triangle');setTimeout(()=>{overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');render()},650)}},850)}
 function announceBattle(p){const el=$('announcement');el.className='announcement show '+(p===1?'red-ann':'yellow-ann');$('announcementTitle').textContent=name(p)+' WINS!';$('announcementSub').textContent='ONE DROP EARNED';playTone(p===1?660:520,.22,'triangle');setTimeout(()=>{el.className='announcement'},1050)}
 function playVictoryMusic(){if(!musicEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();const ctx=audioContext;const melody=[659.25,783.99,987.77,783.99,880,1046.5,1174.66,1318.51,1567.98];const lengths=[.18,.18,.22,.18,.2,.22,.22,.28,.55];const schedule=()=>{if(!musicEnabled||ctx.state!=='running')return;let at=ctx.currentTime+.06;melody.forEach((freq,i)=>{const duration=lengths[i],osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='triangle';osc.frequency.setValueAtTime(freq,at);gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(.105,at+.025);gain.gain.setValueAtTime(.105,at+Math.max(.04,duration-.055));gain.gain.exponentialRampToValueAtTime(.0001,at+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(at);osc.stop(at+duration+.015);at+=duration*.88})};if(ctx.state==='running')schedule();else ctx.resume().then(schedule).catch(()=>{});}catch(e){console.warn('Victory music unavailable',e)}}
 function celebrate(p){const overlay=$('victoryOverlay');overlay.className='victory-overlay show '+(p===1?'victory-red':'victory-yellow');$('victoryTitle').textContent=name(p)+' WINS!';$('victoryStats').innerHTML='<div class="victory-stat"><b>'+roundBattleCount+'</b><span>Battles played</span></div><div class="victory-stat"><b>'+roundDrops[0]+' – '+roundDrops[1]+'</b><span>Red – Yellow drops</span></div><div class="victory-stat"><b>'+(p===1?roundDrops[0]:roundDrops[1])+'</b><span>Winner drops</span></div>';$('victoryNext').focus({preventScroll:true});playTone(660,.18,'triangle');playVictoryMusic();for(let i=0;i<100;i++){const bit=document.createElement('i');bit.className='confetti';bit.style.left=(Math.random()*100)+'vw';bit.style.background=['#ff5268','#ffd34e','#587dff','#ffffff','#6ee7b7','#e879f9'][i%6];bit.style.animationDelay=(Math.random()*.55)+'s';bit.style.transform='rotate('+Math.random()*360+'deg)';document.body.append(bit);setTimeout(()=>bit.remove(),3300)}}
-function saveGame(){if(restoring)return;try{const data={version:1,grid,current,winner,winningCells,scores,history,roundStarter,battleReady,battleWinnerSelected,battleCount,streakPlayer,streakCount,bestStreak,battleLog,roundBattleCount,roundDrops,effectsEnabled,musicEnabled,countdownReady,pendingSnapshot,name1:$('name1').value,name2:$('name2').value};localStorage.setItem('battleConnect4Save',JSON.stringify(data))}catch(e){console.warn('Could not save game state',e)}}
+function saveGame(){if(restoring)return;try{const data={version:1,grid,current,winner,winningCells,scores,history,roundStarter,battleReady,battleWinnerSelected,battleCount,streakPlayer,streakCount,bestStreak,battleLog,roundBattleCount,roundDrops,effectsEnabled,musicEnabled,countdownReady,pendingSnapshot,name1:$('name1').value,name2:$('name2').value};localStorage.setItem('battleConnect4Save',JSON.stringify(data));if(syncChannel)syncChannel.postMessage(data)}catch(e){console.warn('Could not save game state',e)}}
 function loadSavedGame(){try{const raw=localStorage.getItem('battleConnect4Save');if(!raw)return;const d=JSON.parse(raw);if(!d||d.version!==1||!Array.isArray(d.grid)||d.grid.length!==ROWS||!d.grid.every(row=>Array.isArray(row)&&row.length===COLS))return;restoring=true;grid=d.grid;current=d.current===2?2:1;winner=[0,1,2,3].includes(d.winner)?d.winner:0;winningCells=Array.isArray(d.winningCells)?d.winningCells:[];scores=Array.isArray(d.scores)&&d.scores.length===2?d.scores:[0,0];history=Array.isArray(d.history)?d.history:[];roundStarter=d.roundStarter===2?2:1;battleReady=!!d.battleReady;battleWinnerSelected=!!d.battleWinnerSelected;battleCount=Number(d.battleCount)||0;streakPlayer=d.streakPlayer===1||d.streakPlayer===2?d.streakPlayer:0;streakCount=Number(d.streakCount)||0;bestStreak=Number(d.bestStreak)||0;battleLog=Array.isArray(d.battleLog)?d.battleLog:[];roundBattleCount=Number(d.roundBattleCount)||0;roundDrops=Array.isArray(d.roundDrops)&&d.roundDrops.length===2?d.roundDrops:[0,0];effectsEnabled=d.effectsEnabled!==false;musicEnabled=d.musicEnabled!==false;countdownReady=!!d.countdownReady;pendingSnapshot=d.pendingSnapshot||null;$('name1').value=typeof d.name1==='string'?d.name1:'RED TEAM';$('name2').value=typeof d.name2==='string'?d.name2:'YELLOW TEAM';countdownActive=false; }catch(e){console.warn('Could not restore saved game',e)}finally{restoring=false}}
 function render(){
  const board=$('board'),cols=$('columns');board.innerHTML='';cols.innerHTML='';
@@ -320,10 +236,7 @@ $('nextBattle').addEventListener('click',startNextBattle);
 $('startBattle').addEventListener('click',startBattleCountdown);
 $('reset').addEventListener('click',()=>{scores=[0,0];battleLog=[];roundStarter=1;battleCount=0;streakPlayer=0;streakCount=0;bestStreak=0;pendingSnapshot=null;startRound()});
 $('soundToggle').addEventListener('click',()=>{effectsEnabled=!effectsEnabled;if(effectsEnabled)playTone(600,.1);render()});$('musicToggle').addEventListener('click',()=>{musicEnabled=!musicEnabled;if(musicEnabled)playTone(740,.12,'triangle','music');render()});
-function setStreamMode(enabled){document.body.classList.toggle('stream-mode',enabled);$('streamToggle').setAttribute('aria-pressed',String(enabled));$('streamToggle').textContent=enabled?'📺 STREAM VIEW ON':'📺 STREAM VIEW';$('streamExit').hidden=!enabled}
-$('streamToggle').addEventListener('click',()=>setStreamMode(!document.body.classList.contains('stream-mode')));
-$('streamExit').addEventListener('click',()=>setStreamMode(false));
-document.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;const target=e.target;if(target&&(target.tagName==='INPUT'||target.tagName==='TEXTAREA'||target.isContentEditable))return;const key=e.key.toLowerCase();if(key==='escape'&&document.body.classList.contains('stream-mode')){setStreamMode(false);return}if(key==='s'){setStreamMode(!document.body.classList.contains('stream-mode'));e.preventDefault();return}if(document.body.classList.contains('stream-mode'))return;if(key==='r'){selectBattleWinner(1);e.preventDefault()}else if(key==='y'){selectBattleWinner(2);e.preventDefault()}else if(key==='u'){undoLastDrop();e.preventDefault()}else if(key==='n'){startNextBattle();e.preventDefault()}else if(/^[1-7]$/.test(key)){play(Number(key)-1);e.preventDefault()}});
+document.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;const target=e.target;if(target&&(target.tagName==='INPUT'||target.tagName==='TEXTAREA'||target.isContentEditable))return;const key=e.key.toLowerCase();if(key==='r'){selectBattleWinner(1);e.preventDefault()}else if(key==='y'){selectBattleWinner(2);e.preventDefault()}else if(key==='u'){undoLastDrop();e.preventDefault()}else if(key==='n'){startNextBattle();e.preventDefault()}else if(/^[1-7]$/.test(key)){play(Number(key)-1);e.preventDefault()}});
 
 $('name1').addEventListener('input',render);$('name2').addEventListener('input',render);
 loadSavedGame();render();
