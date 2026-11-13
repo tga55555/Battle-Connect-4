@@ -58,6 +58,31 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 @media(max-width:420px){body{padding:12px 10px 26px}.app{width:100%}header{padding:15px 8px 17px;margin-bottom:14px}.board-wrap{padding:9px;border-radius:19px}.board{gap:5px;padding:7px}.columns{gap:5px;padding:0 7px}.drop{min-height:39px}.actions{gap:8px}.btn{padding:11px 7px;font-size:12px;min-height:46px}.stats{gap:6px}.stat{padding:8px 3px}.stat span{font-size:8px;letter-spacing:.06em}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
 
+
+/* BIG CONNECT-FOUR VICTORY SCREEN */
+.victory-overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 38%,#55327bdc 0,#160d2df2 62%,#080615f7 100%);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.victory-overlay.show{display:flex;animation:victoryFade .35s ease both}
+.victory-card{position:relative;width:min(100%,430px);padding:30px 22px 24px;text-align:center;border:2px solid #ffe28a;border-radius:28px;background:linear-gradient(155deg,#48235f,#20204b 58%,#142c50);box-shadow:0 0 0 6px #ffffff12,0 0 45px #d68aff77,0 24px 80px #000c;overflow:hidden;animation:victoryPop .7s cubic-bezier(.18,.9,.25,1.2) both}
+.victory-card:before,.victory-card:after{content:"✦";position:absolute;color:#ffe68b;font-size:42px;text-shadow:0 0 18px #ffe68b;animation:starFloat 2s ease-in-out infinite alternate}
+.victory-card:before{left:18px;top:20px}.victory-card:after{right:18px;top:38px;animation-delay:.5s}
+.victory-crown{font-size:58px;line-height:1.1;filter:drop-shadow(0 0 16px #ffe27a);animation:crownBounce 1s ease-in-out infinite alternate}
+.victory-kicker{margin:12px 0 7px;color:#ffe9a8;font-size:12px;font-weight:1000;letter-spacing:.24em}
+.victory-title{margin:0;font-size:clamp(30px,8vw,48px);line-height:1.02;font-weight:1000;letter-spacing:-.04em;text-transform:uppercase;text-shadow:0 4px 0 #32164b,0 0 25px #ffffff55;overflow-wrap:anywhere}
+.victory-subtitle{margin:12px 0 22px;color:#e8dafa;font-size:15px;font-weight:800;letter-spacing:.08em}
+.victory-next{width:100%;border:1px solid #fff0a7;border-radius:15px;padding:15px 12px;background:linear-gradient(110deg,#ffe17a,#ffad62);color:#321a36;font-size:15px;font-weight:1000;letter-spacing:.08em;box-shadow:0 5px 0 #8e4a45;cursor:pointer}
+.victory-next:active{transform:translateY(3px);box-shadow:0 2px 0 #8e4a45}
+.victory-red .victory-card{border-color:#ff829e;box-shadow:0 0 0 6px #ffffff12,0 0 48px #ff477c88,0 24px 80px #000c}
+.victory-red .victory-title{color:#ff9bb0}
+.victory-yellow .victory-card{border-color:#ffe27a;box-shadow:0 0 0 6px #ffffff12,0 0 48px #ffdc5588,0 24px 80px #000c}
+.victory-yellow .victory-title{color:#ffe27a}
+@keyframes victoryFade{from{opacity:0}to{opacity:1}}
+@keyframes victoryPop{0%{transform:translateY(35px) scale(.72);opacity:0}65%{transform:translateY(-5px) scale(1.04);opacity:1}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes crownBounce{to{transform:translateY(-8px) rotate(-4deg)}}
+@keyframes starFloat{to{transform:translateY(-9px) rotate(18deg);opacity:.65}}
+.confetti{z-index:22}
+@media(max-width:420px){.victory-card{padding:26px 18px 20px;border-radius:23px}.victory-crown{font-size:52px}.victory-subtitle{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.victory-overlay.show,.victory-card,.victory-crown,.victory-card:before,.victory-card:after{animation:none!important}}
+
 </style>
 </head>
 <body>
@@ -71,6 +96,15 @@ h1 span{background:linear-gradient(90deg,#ffe27a,#ff9dca,#b6a0ff);background-cli
 </section>
 <section class="stats" aria-label="Battle statistics"><div class="stat"><b id="battleCount">0</b><span>Battles played</span></div><div class="stat"><b id="streakCount">0</b><span id="streakLabel">Current streak</span></div><div class="stat"><b id="bestStreak">0</b><span>Best streak</span></div></section>
 <div class="announcement" id="announcement" aria-live="assertive"><strong id="announcementTitle"></strong><small id="announcementSub">ONE DROP EARNED</small></div>
+<div class="victory-overlay" id="victoryOverlay" role="dialog" aria-modal="true" aria-labelledby="victoryTitle">
+ <div class="victory-card">
+  <div class="victory-crown" aria-hidden="true">🏆</div>
+  <div class="victory-kicker">CONNECT FOUR CHAMPION</div>
+  <h2 class="victory-title" id="victoryTitle">RED TEAM WINS!</h2>
+  <p class="victory-subtitle">🎉 FOUR IN A ROW! 🎉</p>
+  <button class="victory-next" id="victoryNext">NEXT ROUND</button>
+ </div>
+</div>
 <div class="status" role="status" aria-live="polite"><span class="status-dot" id="turnDot"></span><p id="statusText">RED TEAM's turn<small>Drop again, or switch players when the battle result changes.</small></p></div>
 <section class="board-wrap" aria-label="Connect four game board">
 <div class="board" id="board"></div><div class="columns" id="columns" aria-label="Choose a column"></div>
@@ -90,7 +124,7 @@ const $=id=>document.getElementById(id);
 const name=n=>($('name'+n).value.trim()||('PLAYER '+n));
 function playTone(freq=520,duration=.13,type='sine'){if(!soundEnabled)return;try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;audioContext=audioContext||new Ctx();if(audioContext.state==='suspended')audioContext.resume();const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audioContext.currentTime);gain.gain.setValueAtTime(.0001,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.12,audioContext.currentTime+.015);gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+duration);osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+duration)}catch(e){}}
 function announceBattle(p){const el=$('announcement');el.className='announcement show '+(p===1?'red-ann':'yellow-ann');$('announcementTitle').textContent=name(p)+' WINS!';$('announcementSub').textContent='ONE DROP EARNED';playTone(p===1?660:520,.22,'triangle');setTimeout(()=>{el.className='announcement'},1050)}
-function celebrate(){playTone(660,.18,'triangle');setTimeout(()=>playTone(830,.2,'triangle'),130);setTimeout(()=>playTone(990,.32,'triangle'),270);for(let i=0;i<64;i++){const bit=document.createElement('i');bit.className='confetti';bit.style.left=(Math.random()*100)+'vw';bit.style.background=['#ff5268','#ffd34e','#587dff','#ffffff','#6ee7b7'][i%5];bit.style.animationDelay=(Math.random()*.55)+'s';bit.style.transform='rotate('+Math.random()*360+'deg)';document.body.append(bit);setTimeout(()=>bit.remove(),3300)}}
+function celebrate(p){const overlay=$('victoryOverlay');overlay.className='victory-overlay show '+(p===1?'victory-red':'victory-yellow');$('victoryTitle').textContent=name(p)+' WINS!';$('victoryNext').focus({preventScroll:true});playTone(660,.18,'triangle');setTimeout(()=>playTone(830,.2,'triangle'),130);setTimeout(()=>playTone(990,.32,'triangle'),270);setTimeout(()=>playTone(1320,.42,'triangle'),430);for(let i=0;i<100;i++){const bit=document.createElement('i');bit.className='confetti';bit.style.left=(Math.random()*100)+'vw';bit.style.background=['#ff5268','#ffd34e','#587dff','#ffffff','#6ee7b7','#e879f9'][i%6];bit.style.animationDelay=(Math.random()*.55)+'s';bit.style.transform='rotate('+Math.random()*360+'deg)';document.body.append(bit);setTimeout(()=>bit.remove(),3300)}}
 function render(){
  const board=$('board'),cols=$('columns');board.innerHTML='';cols.innerHTML='';
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
@@ -127,15 +161,16 @@ function play(c){
  history.push({r,c,p:current,battleReady,battleWinnerSelected,streakPlayer:pendingSnapshot?.streakPlayer??streakPlayer,streakCount:pendingSnapshot?.streakCount??streakCount,bestStreak:pendingSnapshot?.bestStreak??bestStreak,battleCount:pendingSnapshot?.battleCount??battleCount});grid[r][c]=current;battleReady=false;battleWinnerSelected=false;pendingSnapshot=null;lastPiece={r,c};playTone(390,.11,'sine');
  let lines=[[0,1],[1,0],[1,1],[1,-1]].map(([dr,dc])=>getLine(r,c,current,dr,dc));
  let line=lines.find(x=>x.length>=4);
- if(line){winner=current;winningCells=line;scores[current-1]++;roundStarter=current;setTimeout(celebrate,220)}
+ if(line){winner=current;winningCells=line;scores[current-1]++;roundStarter=current;setTimeout(()=>celebrate(current),220)}
  else if(grid.every(row=>row.every(Boolean)))winner=3;
  
  render();
 }
 function selectBattleWinner(p){if(winner||!battleReady||battleWinnerSelected)return;pendingSnapshot={streakPlayer,streakCount,bestStreak,battleCount};current=p;battleWinnerSelected=true;battleCount++;if(streakPlayer===p)streakCount++;else{streakPlayer=p;streakCount=1}bestStreak=Math.max(bestStreak,streakCount);announceBattle(p);render()}
-function startRound(){grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;pendingSnapshot=null;render()}
+function startRound(){$('victoryOverlay').className='victory-overlay';grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));history=[];winner=0;winningCells=[];current=roundStarter;battleReady=true;battleWinnerSelected=false;pendingSnapshot=null;render()}
 $('newRound').addEventListener('click',startRound);
-$('undo').addEventListener('click',()=>{if(!history.length)return;const last=history.pop();grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;streakPlayer=last.streakPlayer;streakCount=last.streakCount;bestStreak=last.bestStreak;battleCount=last.battleCount;pendingSnapshot=null;render()});
+$('victoryNext').addEventListener('click',startRound);
+$('undo').addEventListener('click',()=>{if(!history.length)return;$('victoryOverlay').className='victory-overlay';const last=history.pop();grid[last.r][last.c]=0;if(winner===1||winner===2)scores[winner-1]--;winner=0;winningCells=[];current=last.p;roundStarter=current;battleReady=last.battleReady;battleWinnerSelected=last.battleWinnerSelected;streakPlayer=last.streakPlayer;streakCount=last.streakCount;bestStreak=last.bestStreak;battleCount=last.battleCount;pendingSnapshot=null;render()});
 $('redWon').addEventListener('click',()=>selectBattleWinner(1));
 $('yellowWon').addEventListener('click',()=>selectBattleWinner(2));
 $('nextBattle').addEventListener('click',()=>{if(winner||battleReady||battleWinnerSelected)return;battleReady=true;render()});
