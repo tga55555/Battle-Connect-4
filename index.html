@@ -617,6 +617,25 @@ body{
   .logo-header{margin-bottom:12px!important}
 }
 
+
+
+/* MATCH THE PROVIDED REFERENCE: use the repository's real smoke artwork as
+   the page background, cropped below its CONNECT SMOKE lettering. */
+html,body{min-height:100%;background:#02030a!important}
+body{background:#02030a!important;background-image:none!important}
+.smoke-fx{
+  display:block!important;position:fixed!important;inset:0!important;
+  z-index:0!important;pointer-events:none!important;opacity:1!important;
+  background-image:url('IMG_7443.jpeg')!important;
+  background-repeat:no-repeat!important;
+  background-size:100vw 147vh!important;
+  background-position:center bottom!important;
+  background-color:#02030a!important;
+  mix-blend-mode:normal!important;
+}
+#smokeCanvas{display:none!important;opacity:0!important}
+.app{position:relative!important;z-index:1!important}
+
 </style>
 </head>
 <body>
