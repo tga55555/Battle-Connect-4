@@ -288,7 +288,19 @@ header.logo-header{
 .victory{position:absolute!important;z-index:70!important;inset:0!important}
 .board-wrap{position:relative!important;isolation:isolate!important}
 
-.status{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important}.status-dot{display:inline-block!important;width:12px!important;height:12px!important;flex:0 0 12px!important;border-radius:50%!important}.status-dot.red{background:#ff5268!important;box-shadow:0 0 12px #ff526899!important}.status-dot.blue{background:#168cff!important;box-shadow:0 0 12px #168cff99!important}</style></head>
+.status{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important}.status-dot{display:inline-block!important;width:12px!important;height:12px!important;flex:0 0 12px!important;border-radius:50%!important}.status-dot.red{background:#ff5268!important;box-shadow:0 0 12px #ff526899!important}.status-dot.blue{background:#168cff!important;box-shadow:0 0 12px #168cff99!important}
+/* Keep each team's player card and battle-win card in the same team colour. */
+#player1,#player1.active{border-color:#ff718c!important;box-shadow:0 0 0 2px #ff718c44,0 0 22px #ff557e33!important}
+#player2,#player2.active{border-color:#269dff!important;box-shadow:0 0 0 2px #269dff44,0 0 22px #269dff33!important}
+#player1 strong,#player1 small{color:#ff829a!important}
+#player2 strong,#player2 small{color:#54b8ff!important}
+#player1 .score{color:#ff718c!important}
+#player2 .score{color:#54b8ff!important}
+.battle-score-card.red-card small{color:#ff829a!important}
+.battle-score-card.yellow-card{border-color:#269dff88!important}
+.battle-score-card.yellow-card small,.battle-score-card.yellow-card strong{color:#54b8ff!important}
+
+</style></head>
 <body><div class="smoke-fx" aria-hidden="true"><canvas id="smokeCanvas"></canvas></div><div class="shell">
 <header class="logo-header"><img class="site-logo" src="smoke-after-dark-header.jpeg" alt="Smoke After Dark Connect Smoke logo"></header>
 <div class="stream-toolbar" aria-label="Stream display controls"><span class="connection-pill offline" id="operatorConnection">⚠️ OPERATOR NOT CONNECTED</span><button type="button" id="fullscreenBtn">⛶ FULL SCREEN</button><button type="button" id="toggleTicker">HIDE TICKER</button><button type="button" id="toggleHistory">HIDE HISTORY</button><button type="button" id="toggleInfo">HIDE SIDE PANEL</button></div>
