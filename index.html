@@ -842,7 +842,7 @@ function render(){
  $('startBattle').disabled=paused||!!winner||!battleReady||battleWinnerSelected||countdownReady||countdownActive;$('startBattle').textContent=countdownActive?'Battle starting…':countdownReady?'Battle ready ✓':'Start battle · 3-2-1';$('nextBattle').textContent=countdownActive?'Battle starting…':'Next battle · 3-2-1';
  $('spectatorPhase').textContent=winner?'ROUND FINISHED':countdownActive?'BATTLE COUNTDOWN':countdownReady?'BATTLE RESULT NEEDED':battleWinnerSelected?'DROP THE WINNER’S PIECE':battleReady?'READY FOR NEXT BATTLE':'WAITING FOR NEXT BATTLE';$('spectatorNext').textContent=winner?'Next round':battleWinnerSelected?'Drop 1 piece in any column':countdownReady?'Winner earns exactly 1 drop':'Next drop: waiting for battle result';$('spectatorStreak').textContent=streakPlayer?name(streakPlayer)+' · '+streakCount+' in a row':'No streak yet';
  $('player1').classList.toggle('active',!winner&&current===1);$('player2').classList.toggle('active',!winner&&current===2);
- $('turnDot').style.background=current===1?'var(--red)':'var(--yellow)';
+ $('turnDot').style.setProperty('background',current===1?'#ff5268':'#168cff','important');$('turnDot').style.setProperty('box-shadow',current===1?'0 0 10px #ff526899':'0 0 10px #168cff99','important');
  if(paused){$('statusText').innerHTML='⏸ GAME PAUSED<small>Resume from the operator panel to continue.</small>'}
  else if(winner===1||winner===2){$('statusText').innerHTML=name(winner)+' WINS!<small>Four in a row. Start a new round when ready.</small>'}
  else if(winner===3){$('statusText').innerHTML='IT’S A DRAW<small>Every space is filled. Start another round.</small>'}
