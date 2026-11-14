@@ -729,6 +729,33 @@ h1 span{color:#36a7ff!important}
 .victory-yellow .victory-title{color:#70c6ff!important}
 .history-winner.yellow-text{color:#70c6ff!important}
 
+
+
+/* GAME-CENTERED CALLOUTS — anchor winner, countdown and streak effects to the board */
+.board-wrap{position:relative!important;isolation:isolate!important}
+.board-wrap>.victory-overlay,
+.board-wrap>.countdown-overlay{
+  position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  min-height:100%!important;z-index:80!important;
+  display:none;align-items:center!important;justify-content:center!important;
+  padding:12px!important;border-radius:inherit!important;
+}
+.board-wrap>.victory-overlay.show,
+.board-wrap>.countdown-overlay.show{display:flex!important}
+.board-wrap>.victory-overlay .victory-card{width:min(100%,430px)!important;max-height:100%!important;overflow-y:auto!important}
+.board-wrap>.countdown-overlay .countdown-card{width:min(82%,340px)!important}
+.board-wrap>.announcement{
+  position:absolute!important;left:50%!important;top:50%!important;
+  z-index:90!important;transform:translate(-50%,-50%) scale(.8)!important;
+  max-width:calc(100% - 18px)!important;
+}
+@keyframes announce{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.75)}
+  18%,78%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.96)}
+}
+
 </style>
 </head>
 <body>
@@ -982,4 +1009,17 @@ loadSavedGame();render();if(recoveredGame){const notice=$('recoveryNotice');noti
  requestAnimationFrame(draw);
 })();
 </script>
+
+<script>
+/* Keep game feedback centred on the actual Connect 4 board, not the page top. */
+(function(){
+ const board=document.querySelector('.board-wrap');
+ if(!board)return;
+ ['announcement','countdownOverlay','victoryOverlay'].forEach(id=>{
+   const el=document.getElementById(id);
+   if(el && el.parentElement!==board) board.appendChild(el);
+ });
+})();
+</script>
+
 </body></html>
