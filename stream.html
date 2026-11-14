@@ -453,4 +453,10 @@ let lastPolledSave='';setInterval(()=>{try{const raw=localStorage.getItem(key);i
  requestAnimationFrame(draw);
 })();
 </script>
+
+<style>
+/* Hide only the baked-in promotional tagline while preserving the smoke artwork. */
+header.logo-header{position:relative}
+header.logo-header::after{content:"";position:absolute;z-index:2;left:0;right:0;top:38%;height:23%;pointer-events:none;background:linear-gradient(90deg,rgba(5,12,48,.34),rgba(25,4,42,.48) 48%,rgba(65,0,48,.34));backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px)}
+</style>
 </body></html>
